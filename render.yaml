@@ -79,7 +79,6 @@ services:
   - type: web
     name: oddrive-workspace
     env: static
-    plan: free  # Static sites são sempre gratuitos
     rootDir: workspace
     staticPublishPath: .
     buildCommand: echo "No build needed for static site"
