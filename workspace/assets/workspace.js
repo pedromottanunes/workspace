@@ -1,7 +1,7 @@
 (() => {
   const token = localStorage.getItem('adminToken');
   if (!token) {
-    window.location.href = '/workspace/login.html';
+    window.location.href = '/login.html';
     return;
   }
 

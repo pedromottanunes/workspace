@@ -28,7 +28,7 @@ function hideError() {
 }
 
 function redirectToPortal() {
-  window.location.href = '/workspace/';
+  window.location.href = '/';
 }
 
 async function handleLogin(e) {
