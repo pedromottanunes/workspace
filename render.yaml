@@ -11,7 +11,7 @@ services:
     env: node
     region: oregon
     plan: free  # Ou "starter" para produção ($7/mês - sempre online)
-    rootDir: gerenciador de Campanhas
+    rootDir: gerenciador-de-campanhas
     buildCommand: cd backend && npm install
     startCommand: cd backend && node server.js
     healthCheckPath: /api/session/me
@@ -42,7 +42,7 @@ services:
     env: node
     region: oregon
     plan: free  # Ou "starter" para produção ($7/mês - sempre online)
-    rootDir: Gerador de Orçamentos
+    rootDir: gerador-de-orcamentos
     buildCommand: npm install
     startCommand: node server/index.js
     healthCheckPath: /
@@ -79,7 +79,6 @@ services:
   - type: web
     name: oddrive-workspace
     env: static
-    region: oregon
     plan: free  # Static sites são sempre gratuitos
     rootDir: workspace
     staticPublishPath: .
