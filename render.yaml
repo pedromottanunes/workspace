@@ -14,12 +14,10 @@ services:
     rootDir: gerenciador-de-campanhas
     buildCommand: cd backend && npm install
     startCommand: cd backend && node server.js
-    healthCheckPath: /api/session/me
+    healthCheckPath: /api/session/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5174
       - key: LOCAL_HTTPS
         value: 0
       - key: DB_TYPE

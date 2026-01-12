@@ -178,7 +178,7 @@ const __dirname = path.dirname(__filename);
 app.use('/workspace', express.static(path.join(__dirname, '..', '..', 'workspace')));
 app.use('/', express.static(path.join(__dirname, '..', 'frontend')));
 
-const PORT = process.env.PORT || 5173;
+const PORT = process.env.PORT || 10000;
 const HOST = '0.0.0.0';
 
 function readFileIfExists(filePath) {

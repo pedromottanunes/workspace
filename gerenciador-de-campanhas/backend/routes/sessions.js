@@ -28,6 +28,11 @@ await ensureLegacyStoreReady();
 
 const router = Router();
 
+// Health check endpoint (público, sem autenticação)
+router.get('/health', (req, res) => {
+  res.json({ status: 'ok', timestamp: Date.now() });
+});
+
 function loadDB() {
   const db = loadLegacyDb();
   db.sessions = Array.isArray(db.sessions) ? db.sessions : [];
