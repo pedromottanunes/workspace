@@ -123,6 +123,10 @@ const devOrigins = new Set([
   'http://127.0.0.1:4173',
   'capacitor://localhost',
   'ionic://localhost',
+  // Render production URLs
+  'https://oddrive-workspace.onrender.com',
+  'https://oddrive-backend.onrender.com',
+  'https://oddrive-gerador.onrender.com',
 ]);
 
 function isSameOrigin(origin, req) {
@@ -137,7 +141,8 @@ function isSameOrigin(origin, req) {
 function isAllowedOrigin(origin, req) {
   if (!origin) return true; // non-browser or same-origin requests without Origin
   if (corsAllowList.has(origin)) return true;
-  if (!isProd && devOrigins.has(origin)) return true;
+  // Allow devOrigins in development AND production Render URLs always
+  if (devOrigins.has(origin)) return true;
   if (isSameOrigin(origin, req)) return true;
   return false;
 }
