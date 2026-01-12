@@ -1,0 +1,24 @@
+{
+  "appId": "com.oddrive.motorista",
+  "appName": "OD Drive Motorista",
+  "webDir": "frontend",
+  "server": {
+    "androidScheme": "https",
+    "url": "http://192.168.1.19:5174",
+    "cleartext": true
+  },
+  "android": {
+    "path": "android"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": false,
+      "splashImmersive": false
+    }
+  }
+}

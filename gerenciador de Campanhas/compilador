@@ -1,0 +1,3 @@
+Set-Location "D:\Clientes Agentes\OD Drive\Campanha CHECK\app_oficial_odrive"
+npm install   # só na primeira vez ou quando mudar dependências
+npm start

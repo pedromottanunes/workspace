@@ -1,0 +1,48 @@
+{
+  "proposals": [],
+  "settings": {
+    "developerLogo": null
+  },
+  "repRequests": [
+    {
+      "id": "rep-1768172958775",
+      "status": "aprovado",
+      "createdAt": "2026-01-11T23:09:18.775Z",
+      "updatedAt": "2026-01-11T23:09:43.667Z",
+      "representanteNome": "pedro",
+      "representanteEmail": "pedromottanunes@gmail.com",
+      "representanteTelefone": "48996309676",
+      "anunciante": "coca cola",
+      "empresa": "coca cola",
+      "pracas": "Florianópolis",
+      "numeroCarros": 10,
+      "tempoCampanhaDias": 30,
+      "dataInicio": "2026-01-07",
+      "dataFim": "2026-01-31",
+      "validadeDias": 15,
+      "observacoes": "teste",
+      "proposalId": "rep-1768172978436"
+    }
+  ],
+  "googleConfig": {
+    "templateOdInId": "1QMX_2VJW4Or8JJLOKQocra02Tkst-zLu3oR7ed1kIcs",
+    "templateOdVtId": "1Gdwo0gYZMpcUmSdwYMVJmt4kxbVr9Ocmouzh140qHWE",
+    "templateOdDropId": "1qPkcUU_Zvk7QXhKwT9SE_BD2a1voH2YqZ1Kr7BGiUEM",
+    "templateOdFullId": "1YzuRvxW2fcH1nDTJX1IOr1A05t87A-tcol5Ic7gYeOc",
+    "templateOdPackId": "1SsX-Kr9eRIgnsTOwsO8-FfxGyNZ4xQpo2MnRdcKNyhg",
+    "presentationsFolderId": "1d0PfCcye-w4veGqnA_JVXk7CKzps3Ali",
+    "assetsFolderId": "10_v5oRGmCu4CNHROE5jjt1MJtDmzymyd",
+    "clientId": "1031439600498-aj9iipn5ueb0vtlo9blbrarmhv5fbvp0.apps.googleusercontent.com",
+    "clientSecret": "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",
+    "redirectUri": "http://127.0.0.1:8080/api/slides/oauth/callback",
+    "publicShare": true
+  },
+  "google_auth": {
+    "accessToken": "ya29.a0Aa7pCA8BGvJF6EcLj5vj_Ml9droZ5CMNHI-kh5KWx2LuE7Bj-rCMFFu3iKvHGp8jrhFvivyR7r94TNDUEQXp8fBKSf_-i3vdU8G_cbm_qbSkgPiHObwgb2Z14PwYs2lfHWcIImVA59h9bHYYv0Pkp6xpas222QqFOWp4dUcvSCWC2Sa2VR8KR0EdImtV-NBMT-fY9QreaCgYKAW8SARMSFQHGX2MiT3xDQmiV07Ljdd41vd2l4A0207",
+    "refreshToken": "1//0hxQuzUOBJ3LYCgYIARAAGBESNwF-L9IreYQhwPVGNjOMyKMy_VU0bkyk37Q1BFEFFw3rDfyvD8Gby5KwB4TgGETbtUpjdxngJ_I",
+    "tokenType": "Bearer",
+    "scope": "https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/presentations",
+    "expiresAt": "2026-01-10T03:32:59.882Z",
+    "connectedAt": "2026-01-10T02:33:00.882Z"
+  }
+}

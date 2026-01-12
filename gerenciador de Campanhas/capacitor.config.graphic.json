@@ -1,0 +1,21 @@
+{
+  "appId": "com.oddrive.grafica",
+  "appName": "OD Drive - Gráfica",
+  "webDir": "frontend",
+  "server": {
+    "url": "https://SEU-BACKEND.com",
+    "cleartext": true,
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": false,
+      "splashImmersive": false
+    }
+  }
+}

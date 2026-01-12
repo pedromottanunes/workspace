@@ -1,0 +1,12 @@
+version: 1
+services:
+  - type: web
+    name: oddrive-orcamento-online
+    env: node
+    region: oregon
+    branch: main
+    plan: free
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    autoDeploy: true
+    pullRequestPreviews: false

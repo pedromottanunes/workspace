@@ -1,0 +1,37 @@
+name: CI & Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install
+        run: npm ci
+      - name: Secret scan
+        run: npm run secret-scan
+
+  deploy:
+    needs: build-and-scan
+    runs-on: ubuntu-latest
+    if: "github.ref == 'refs/heads/main' && secrets.RENDER_API_KEY != '' && secrets.RENDER_SERVICE_ID != ''"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger Render deploy
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+        run: |
+          echo "Triggering deploy for Render service $RENDER_SERVICE_ID"
+          curl -s -X POST \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
+            -H "Content-Type: application/json" \
+            -d '{}' \
+            https://api.render.com/deploy/srv/${RENDER_SERVICE_ID}

@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <!-- Backend API - ajuste para seu IP local ou ngrok HTTPS -->
+  <meta name="api-base" content="http://192.168.1.19:5174" />
+  <title>OD Drive - Motorista</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body class="mobile-body">
+  <div class="mobile-shell">
+    <header class="mobile-header">
+      <h1>Área do Motorista</h1>
+      <p class="small">Siga o fluxo e capture as imagens</p>
+    </header>
+
+    <section id="driverLogin" class="mobile-card">
+      <form id="driverLoginForm" class="form-grid">
+        <div class="form-group">
+          <label for="driverName">Nome completo</label>
+          <input id="driverName" name="name" type="text" placeholder="Seu nome" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="driverPhone">Número de celular</label>
+          <input id="driverPhone" name="phone" type="tel" inputmode="numeric" placeholder="(00) 90000-0000" required autocomplete="tel" />
+        </div>
+        <div class="form-group form-actions">
+          <button type="submit" class="btn btn--primary" id="driverLoginSubmit">Entrar</button>
+        </div>
+      </form>
+      <p class="form-message" id="driverLoginMessage"></p>
+    </section>
+
+    <section id="driverApp" class="mobile-card hidden">
+      <header class="mobile-app-header">
+        <div>
+          <h2 id="driverWelcome">Olá!</h2>
+          <p class="small" id="driverCampaignInfo"></p>
+        </div>
+        <button class="btn" id="driverLogout">Sair</button>
+      </header>
+      <div class="mobile-steps" id="driverSteps">
+        <p class="small">Carregando atividades...</p>
+      </div>
+    </section>
+  </div>
+  <script type="module" src="./js/driver-native.js"></script>
+</body>
+</html>

@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Histórico de Auditoria - OD Drive Admin</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+  <style>
+    .audit-container {
+      max-width: 1400px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .audit-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .audit-filters {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+    .audit-filters input,
+    .audit-filters select {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.9rem;
+    }
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .audit-table thead {
+      background: #667eea;
+      color: white;
+    }
+    .audit-table th,
+    .audit-table td {
+      padding: 1rem;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .audit-table tbody tr:hover {
+      background: #f9f9f9;
+    }
+    .action-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .action-create { background: #d4edda; color: #155724; }
+    .action-update { background: #fff3cd; color: #856404; }
+    .action-delete { background: #f8d7da; color: #721c24; }
+    .action-verify { background: #d1ecf1; color: #0c5460; }
+    .action-sync { background: #e2e3e5; color: #383d41; }
+    .user-name {
+      font-weight: 600;
+      color: #333;
+    }
+    .timestamp {
+      color: #666;
+      font-size: 0.85rem;
+    }
+    .details-btn {
+      padding: 0.25rem 0.75rem;
+      border: 1px solid #667eea;
+      background: white;
+      color: #667eea;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .details-btn:hover {
+      background: #667eea;
+      color: white;
+    }
+    .no-logs {
+      text-align: center;
+      padding: 3rem;
+      color: #999;
+    }
+    .load-more {
+      text-align: center;
+      margin: 2rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <img src="assets/images/udd-student.png" alt="UDD" class="logo-left" />
+        <h1>Histórico de Auditoria</h1>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnBackDashboard">← Voltar ao Dashboard</button>
+        <span id="adminUserName" style="margin-left: 1rem; color: white; font-weight: 600;"></span>
+        <button class="btn" id="btnLogout">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="audit-container">
+    <div class="audit-filters">
+      <input type="text" id="filterUsername" placeholder="Filtrar por usuário" />
+      <select id="filterAction">
+        <option value="">Todas as ações</option>
+        <option value="campaign:create">Criar campanha</option>
+        <option value="campaign:update">Atualizar campanha</option>
+        <option value="campaign:delete">Deletar campanha</option>
+        <option value="driver:create">Criar motorista</option>
+        <option value="driver:update">Atualizar motorista</option>
+        <option value="driver:delete">Deletar motorista</option>
+        <option value="evidence:verify">Verificar evidência</option>
+      </select>
+      <button class="btn btn--primary" id="btnFilter">Filtrar</button>
+    </div>
+
+    <div id="auditTableContainer">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Usuário</th>
+            <th>Ação</th>
+            <th>Tipo</th>
+            <th>Detalhes</th>
+          </tr>
+        </thead>
+        <tbody id="auditTableBody">
+          <tr>
+            <td colspan="5" class="no-logs">Carregando...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="load-more" id="loadMoreContainer" style="display: none;">
+      <button class="btn" id="btnLoadMore">Carregar mais</button>
+    </div>
+  </div>
+
+  <script src="./js/audit-logs.js"></script>
+</body>
+</html>

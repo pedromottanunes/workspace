@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Redirect</title>
+  <script>
+    const host = window.location.hostname || 'localhost';
+    const target = `http://${host}:5174/workspace/login.html`;
+    window.location.replace(target);
+  </script>
+</head>
+<body>
+  Redirecting to workspace login...
+</body>
+</html>

@@ -1,0 +1,156 @@
+# =====================================================
+# RENDER.COM - Configuração de Deploy
+# =====================================================
+# Este arquivo configura automaticamente os 3 serviços do Workspace Unificado
+# Documentação: https://render.com/docs/yaml-spec
+
+services:
+  # ========== BACKEND (Gerenciador de Campanhas) ==========
+  - type: web
+    name: oddrive-backend
+    env: node
+    region: oregon
+    plan: free  # Ou "starter" para produção ($7/mês - sempre online)
+    rootDir: gerenciador de Campanhas
+    buildCommand: cd backend && npm install
+    startCommand: cd backend && node server.js
+    healthCheckPath: /api/session/me
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5174
+      - key: LOCAL_HTTPS
+        value: 0
+      - key: DB_TYPE
+        value: mongo
+      - key: USE_REDIS
+        value: false
+      - key: CAPTURE_MAX_AGE_MINUTES
+        value: 60
+      # ⚠️ ATENÇÃO: Configure os seguintes secrets no painel do Render:
+      # - MONGO_URI (string de conexão MongoDB Atlas)
+      # - SESSION_SECRET (gere random: openssl rand -base64 32)
+      # - GOOGLE_CLIENT_EMAIL (service account email)
+      # - GOOGLE_PRIVATE_KEY (chave privada do service account)
+      # - public_key (API key se necessário)
+      # - Private_key (API secret se necessário)
+
+  # ========== GERADOR DE ORÇAMENTOS ==========
+  - type: web
+    name: oddrive-gerador
+    env: node
+    region: oregon
+    plan: free  # Ou "starter" para produção ($7/mês - sempre online)
+    rootDir: Gerador de Orçamentos
+    buildCommand: npm install
+    startCommand: node server/index.js
+    healthCheckPath: /
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5173
+      - key: APP_NAME
+        value: OD Drive - Gerador de Orçamentos
+      - key: APP_VERSION
+        value: 1.0.0
+      - key: GOOGLE_SHARE_PRESENTATIONS
+        value: true
+      - key: STORAGE_PATH
+        value: ./data/proposals
+      - key: EXPORTS_PATH
+        value: ./tmp/exports
+      - key: UPLOADS_PATH
+        value: ./tmp/uploads
+      # ⚠️ ATENÇÃO: Configure os seguintes secrets no painel do Render:
+      # - GOOGLE_CLIENT_ID
+      # - GOOGLE_CLIENT_SECRET
+      # - GOOGLE_REDIRECT_URI (ex: https://oddrive-gerador.onrender.com/api/slides/oauth/callback)
+      # - GOOGLE_TEMPLATE_ODIN_ID
+      # - GOOGLE_TEMPLATE_OD_VT_ID
+      # - GOOGLE_TEMPLATE_OD_DROP_ID
+      # - GOOGLE_TEMPLATE_OD_PACK_ID
+      # - GOOGLE_TEMPLATE_OD_FULL_ID
+      # - GOOGLE_PRESENTATIONS_FOLDER_ID
+      # - GOOGLE_DRIVE_ASSETS_FOLDER_ID
+
+  # ========== WORKSPACE (Frontend Estático) ==========
+  - type: web
+    name: oddrive-workspace
+    env: static
+    region: oregon
+    plan: free  # Static sites são sempre gratuitos
+    rootDir: workspace
+    staticPublishPath: .
+    buildCommand: echo "No build needed for static site"
+    routes:
+      - type: rewrite
+        source: /
+        destination: /index.html
+      - type: rewrite
+        source: /login
+        destination: /login.html
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
+    # Para configurar URLs dos serviços em produção, adicione:
+    # envVars:
+    #   - key: ENV_BACKEND_URL
+    #     value: https://oddrive-backend.onrender.com
+    #   - key: ENV_GERADOR_URL
+    #     value: https://oddrive-gerador.onrender.com
+
+# =====================================================
+# INSTRUÇÕES DE DEPLOY
+# =====================================================
+#
+# 1. PUSH PARA O GITHUB:
+#    - Garanta que os arquivos .env NÃO estão commitados
+#    - Apenas .env.example e render.yaml devem estar no repo
+#    - Execute: git push origin main
+#
+# 2. CONECTAR RENDER AO GITHUB:
+#    - Acesse https://dashboard.render.com/
+#    - Clique em "New +" → "Blueprint"
+#    - Conecte seu repositório GitHub
+#    - Render detectará este arquivo render.yaml automaticamente
+#
+# 3. CONFIGURAR SECRETS (CRÍTICO):
+#    - No painel de cada serviço, vá em "Environment"
+#    - Adicione todas as variáveis marcadas com ⚠️ acima
+#    - Use os valores reais do seu .env local
+#    - Para GOOGLE_PRIVATE_KEY: copie com as quebras de linha (\n)
+#
+# 4. CONFIGURAR DOMÍNIOS CUSTOMIZADOS (OPCIONAL):
+#    - Em cada serviço, vá em "Settings" → "Custom Domains"
+#    - Adicione: backend.oddrive.com.br, gerador.oddrive.com.br
+#    - Configure os registros DNS no Hostinger conforme instruções
+#
+# 5. MONITORAR DEPLOY:
+#    - Logs em tempo real aparecem no painel
+#    - Verifique health checks (deve ficar verde após alguns minutos)
+#    - Teste as URLs geradas pelo Render
+#
+# 6. ATUALIZAÇÕES FUTURAS:
+#    - Faça push no GitHub (git push origin main)
+#    - Render detecta e faz deploy automático
+#    - Ou use "Manual Deploy" no painel do Render
+#
+# =====================================================
+# URLs GERADAS (APÓS DEPLOY):
+# =====================================================
+# Backend: https://oddrive-backend.onrender.com
+# Gerador: https://oddrive-gerador.onrender.com  
+# Workspace: https://oddrive-workspace.onrender.com
+#
+# Atualize ENV_BACKEND_URL e ENV_GERADOR_URL no config.js
+# ou adicione como environment variables no serviço workspace
+# =====================================================

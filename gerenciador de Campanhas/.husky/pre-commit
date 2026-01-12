@@ -1,0 +1,11 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo "Running secret-scan...";
+npm run secret-scan || {
+  echo "Secret scan failed. Fix issues before committing.";
+  exit 1;
+}
+
+echo "Secret scan passed.";
+npx lint-staged

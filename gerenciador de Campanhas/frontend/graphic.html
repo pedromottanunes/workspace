@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+  <title>OD Drive - Gráfica</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body class="mobile-body">
+  <div class="mobile-shell">
+    <header class="mobile-header">
+      <h1>Área da Gráfica</h1>
+      <p class="small">Informe os dados cadastrados pelo administrador para acessar.</p>
+    </header>
+
+    <section id="graphicLogin" class="mobile-card">
+      <form id="graphicLoginForm" class="form-grid">
+        <div class="form-group">
+          <label for="graphicCode">Código da campanha</label>
+          <input id="graphicCode" name="campaignCode" type="text" placeholder="Ex: ABC123" required />
+        </div>
+        <div class="form-group">
+          <label for="graphicResponsible">Nome do responsável</label>
+          <input id="graphicResponsible" name="name" type="text" placeholder="Responsável da gráfica" required />
+        </div>
+        <div class="form-group form-actions">
+          <button type="submit" class="btn btn--primary" id="graphicLoginSubmit">Entrar</button>
+        </div>
+      </form>
+      <p class="form-message" id="graphicLoginMessage"></p>
+    </section>
+
+    <section id="graphicApp" class="mobile-card hidden">
+      <header class="mobile-app-header">
+        <div>
+          <h2 id="graphicWelcome">Bem-vindo!</h2>
+          <p class="small" id="graphicCampaignInfo"></p>
+        </div>
+        <button class="btn" id="graphicLogout">Sair</button>
+      </header>
+      <div class="form-group">
+        <label for="graphicDriverSelect">Motorista</label>
+        <select id="graphicDriverSelect"></select>
+        <p class="small muted" id="graphicDriverHint">Selecione um motorista</p>
+      </div>
+      <div class="mobile-steps" id="graphicSteps">
+        <p class="small">Carregando dados da campanha...</p>
+      </div>
+    </section>
+  </div>
+
+  <script src="./js/graphic.js" type="module"></script>
+</body>
+</html>

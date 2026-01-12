@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Build artifacts
+dist/
+dist-electron/
+out/
+build/
+
+# Runtime generated files
+tmp/
+data/
+!server/data/
+!server/data/app-data.json
+*.log
+*.log.*
+
+# Environment & secrets
+.env
+.env1
+.env.local
+.env.*.local
+PARAMETROS SECRETOS/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+# Electron
+*.asar
+*.exe
+*.dmg
+*.pkg
+*.deb
+*.rpm
+*.AppImage

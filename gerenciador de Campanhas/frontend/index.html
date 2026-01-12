@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OD Drive - Admin</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <!-- Imagem à esquerda do título (coloque o arquivo em frontend/assets/images/udd-student.png) -->
+        <img src="./assets/images/udd-student.png" alt="UDD" class="logo-left" />
+        <h1 id="admin-title-text">DASHBOARD - Gerenciador de campanhas</h1>
+      </div>
+      <div class="actions">
+        <!--<button class="btn" id="btnAdd">Adicionar campanha</button>-->
+        <button class="btn btn--primary" id="btnAdd">Adicionar campanha</button>
+
+        <button class="btn btn--primary" id="btnImport">Importar planilha</button>
+        <button class="btn" id="btnAuditLogs" title="Ver histórico de ações">Histórico</button>
+        <span id="adminUserName" style="margin-left: 1rem; color: white; font-weight: 600;"></span>
+        <button class="btn" id="btnLogout" title="Sair">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Chips de filtro -->
+    <div class="chips" id="chips">
+      <button class="chip active" data-filter="ativa">Ativas</button>
+      <button class="chip" data-filter="pausada">Pausadas</button>
+      <button class="chip" data-filter="encerrada">Encerradas</button>
+      <button class="chip" data-filter="*">Todas</button>
+    </div>
+
+    <!-- Cards -->
+    <section id="cards" class="grid-cards">
+      <div class="card placeholder">
+        <div class="card-head">
+          <h3 class="m0">Vamos criar uma campanha?</h3>
+          <span class="pill">Inicie uma campanha</span>
+        </div>
+        <p class="small m0">Use "Importar planilha" para criar uma campanha a partir do google sheets.</p>
+      </div>
+    </section>
+
+    <p class="small mt16"><b>DICA:</b> Adicione uma campanha manualmente ou importe a partir de uma planilha.</p>
+  </div>
+
+    <div class="modal hidden" id="adminPromptModal" aria-hidden="true">
+    <div class="modal-backdrop" data-admin-prompt-dismiss></div>
+    <div class="modal-card modal-card--prompt" role="dialog" aria-modal="true">
+      <button class="modal-close" type="button" data-admin-prompt-dismiss>&times;</button>
+      <h2 class="modal-title" id="adminPromptTitle">Configurações</h2>
+      <p class="prompt-description small" id="adminPromptDescription"></p>
+      <form id="adminPromptForm">
+        <div class="prompt-fields" id="adminPromptFields"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn" id="adminPromptCancel" data-admin-prompt-dismiss>Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="adminPromptConfirm">Continuar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script src="./js/admin-ui.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>
+
+

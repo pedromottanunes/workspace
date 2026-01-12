@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>OD Drive - Campanha</title>
+  <link rel="stylesheet" href="./assets/styles.css" />
+</head>
+<body>
+  <div class="topbar">
+    <div class="wrap">
+      <div class="brand">
+        <a href="index.html" class="btn btn--ghost">&larr; Voltar</a>
+        <!-- Imagem à esquerda do título da campanha (opcional) -->
+        <img src="assets/images/udd-student.png" alt="UDD" class="logo-left" />
+        <h1 id="campTitle">Nome da Campanha</h1>
+      </div>
+      <div class="actions">
+        <button class="btn" id="btnReport">Relatório Parcial</button>
+        <button class="btn btn--danger" id="btnDelete">Excluir Campanha</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Tabs -->
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-tab="resumo">Resumo</button>
+      <button class="tab" data-tab="motoristas">Motoristas</button>
+      <button class="tab" data-tab="grafica">Gráfica</button>
+    <button class="tab" data-tab="acompanhe">Acompanhe</button>
+      <button class="tab" data-tab="km" style="display:none;">KM / Metas</button>
+      <button class="tab" data-tab="revisar">Revisar</button>
+      <button class="tab" data-tab="config">Configurações</button>
+    </div>
+
+    <div class="tab-panels">
+      <!-- Resumo -->
+      <section class="tab-panel active" id="tab-resumo">
+        <div class="kpis">
+          <div class="kpi">
+            <div class="label">Aderência média</div>
+            <div class="value" id="kpiAd">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">KM total</div>
+            <div class="value" id="kpiKm">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Instalados</div>
+            <div class="value" id="kpiInst">-</div>
+          </div>
+          <div class="kpi">
+            <div class="label">Revisar</div>
+            <div class="value" id="kpiRev">-</div>
+          </div>
+        </div>
+        <hr/>
+        <div class="grid-cards">
+          <article class="card">
+            <div class="card-head">
+              <h3 class="m0">Status da campanha</h3>
+              <select id="campaignStatus" class="pill-select"></select>
+            </div>
+            <p class="small">Periodo: <span id="campPeriod">-</span> &middot; Cliente: <span id="campClient">-</span></p>
+            <div class="counts">
+              <div class="count">Agendado: <b id="cAg">0</b></div>
+              <div class="count">Confirmado: <b id="cCf">0</b></div>
+              <div class="count">Instalado: <b id="cIn">0</b></div>
+              <div class="count">Problema: <b id="cPb">0</b></div>
+              <div class="count">Revisar: <b id="cRv">0</b></div>
+            </div>
+          </article>
+          <article class="card">
+            <div class="card-head">
+              <h3 class="m0">Próximas ações</h3>
+              <span class="pill warn">Agenda</span>
+            </div>
+            <ul class="small m0" id="nextSteps">
+              <li>Resolver pendências da fila "Revisar"</li>
+              <li>Conferir confirmações com a equipe de campo</li>
+              <li>Sincronizar status da gráfica</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Motoristas -->
+      <section class="tab-panel" id="tab-motoristas">
+        <div class="tab-toolbar">
+          <div class="toolbar-actions">
+            <button class="btn" id="btnSaveDrivers" disabled>Salvar alterações</button>
+            <button class="btn btn--primary" id="btnAddDriver">Adicionar motorista</button>
+          </div>
+        </div>
+        <table class="table" data-empty="Sem motoristas para esta campanha.">
+          <thead>
+            <tr>
+              <th>Nome</th><th>Cidade</th><th>Status</th><th>Aderencia</th><th>KM Total</th><th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody id="tblDrivers">
+            <!-- preenchido via JS -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Grafica -->
+      <section class="tab-panel" id="tab-grafica">
+        <div class="tab-toolbar">
+          <div class="toolbar-actions">
+            <button class="btn btn--primary" id="btnAddGraphic">Adicionar grafica</button>
+          </div>
+          <div class="toolbar-info">
+            <span class="pill" id="graphicCountBadge">0 graficas</span>
+          </div>
+        </div>
+        <article class="card" id="graphicAccessCard">
+          <div class="card-head">
+            <h3 class="m0">Acesso da gráfica</h3>
+          </div>
+          <p class="small" id="graphicAccessHint">Compartilhe com a gráfica o nome do responsável cadastrado e o código abaixo. Esses dois campos são usados para acessar a área da gráfica.</p>
+          <div class="code-display">
+            <span class="code-chip" id="campaignCodeValue">---</span>
+            <button class="btn btn--ghost" type="button" id="btnCopyCampaignCode">Copiar código</button>
+          </div>
+          <p class="small muted" id="copyCampaignCodeMessage"></p>
+        </article>
+        <table class="table" data-empty="Nenhuma gráfica cadastrada.">
+          <thead>
+            <tr>
+              <th>Grafica</th>
+              <th>Email</th>
+              <th>Telefone</th>
+              <th>Responsavel 1</th>
+              <th>Responsavel 2</th>
+              <th>Acoes</th>
+            </tr>
+          </thead>
+          <tbody id="tblGraphics"></tbody>
+        </table>
+        <p class="small muted">Os dados cadastrados abaixo definem quem pode confirmar o acesso usando o nome do responsavel combinado com o codigo.</p>
+      </section>
+
+      <!-- Acompanhe (Admin monitoring) -->
+      <section class="tab-panel" id="tab-acompanhe">
+        <div class="tab-toolbar">
+          <div class="toolbar-actions">
+            <label for="acompanheMode" class="small muted">Modo</label>
+            <select id="acompanheMode">
+              <option value="driver">Acompanhar Motorista</option>
+              <option value="graphic">Acompanhar Gráfica</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="acompanhe-grid" style="display:flex;gap:16px;align-items:flex-start;">
+          <aside class="card" id="acompanhe-list" style="flex:0 0 280px;max-height:60vh;overflow:auto;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h3 class="m0">Motoristas</h3>
+              <button id="btnCleanupOrphaned" class="btn btn--secondary" style="font-size:12px;padding:4px 8px;" title="Limpar evidências órfãs (com arquivos deletados)">
+                🧹 Limpar
+              </button>
+            </div>
+            <ul id="acompanheDrivers" class="compact-list" style="margin-top:12px;list-style:none;padding:0;">
+              <!-- preenchido via JS -->
+            </ul>
+          </aside>
+
+          <section class="card" id="acompanhe-gallery" style="flex:1;min-height:240px;">
+            <h3 class="m0">Galeria</h3>
+            <div id="acompanheStatusPanel" class="acompanhe-status">
+              <p class="small muted" id="acompanheStatusHint">Selecione um motorista para acompanhar os envios enviados pelo motorista e pela gr&aacute;fica.</p>
+              <div class="status-card" data-role="driver">
+                <div class="status-info">
+                  <p class="status-label">Motorista</p>
+                  <div class="status-chip is-pending" id="driverStatusChip">Sem dados</div>
+                  <p class="status-note small muted" id="driverStatusNote"></p>
+                </div>
+                <div class="status-action">
+                  <button class="btn btn--ghost" id="btnVerifyDriver" disabled>Marcar como verificado</button>
+                </div>
+              </div>
+              <div class="status-card" data-role="graphic">
+                <div class="status-info">
+                  <p class="status-label">Gr&aacute;fica</p>
+                  <div class="status-chip is-pending" id="graphicStatusChip">Sem dados</div>
+                  <p class="status-note small muted" id="graphicStatusNote"></p>
+                </div>
+                <div class="status-action">
+                  <button class="btn btn--ghost" id="btnVerifyGraphic" disabled>Marcar como verificado</button>
+                </div>
+              </div>
+            </div>
+            <div id="acompanheGalleryGrid" class="gallery-grid">
+              <!-- thumbnails via JS -->
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <!-- KM / Metas -->
+      <section class="tab-panel" id="tab-km" style="display:none;">
+        <div class="tab-toolbar">
+          <div class="toolbar-actions">
+              <button class="btn btn--primary" id="btnImportKm">Importar KM</button>
+              <button class="btn" id="btnSyncKm">Sincronizar KM</button>
+              <button class="btn" id="btnSaveKm" disabled>Salvar KM</button>
+              <label style="display:flex;align-items:center;gap:8px;margin-left:8px;">
+                <span class="small muted">Períodos</span>
+                <input id="kmPeriodsInput" type="number" min="1" max="12" value="3" style="width:64px;padding:6px 8px;border-radius:8px;border:1px solid var(--line);" />
+              </label>
+            </div>
+        </div>
+  <table class="table" data-empty="Sem dados de KM importados.">
+          <thead>
+            <tr>
+              <th>Nome</th><th>Periodo</th><th>KM Rodado</th><th>Meta</th><th>%</th><th>Status</th><th>Check-in</th><th>Observacoes</th>
+            </tr>
+          </thead>
+          <tbody id="tblKm">
+            <!-- preenchido via JS -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Revisar -->
+      <section class="tab-panel" id="tab-revisar">
+        <table class="table" data-empty="Nenhum item em Revisar.">
+          <thead><tr><th>Tipo</th><th>Descricao</th><th>Acao</th></tr></thead>
+          <tbody id="tblReview">
+            <!-- preenchido via JS -->
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Configuracoes -->
+      <section class="tab-panel" id="tab-config">
+        <p class="small" id="configInfo">IDs / links de planilhas, agenda de sincronizacao e permissoes aparecerao aqui.</p>
+        <div class="card" style="margin-top:12px;">
+          <div class="card-head">
+            <h3 class="m0">Reenvio (cooldown)</h3>
+          </div>
+          <p class="small muted">Defina em quantos dias o motorista/gráfica pode reenviar após ser marcado como verificado.</p>
+          <div class="form-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px,1fr));">
+            <div class="form-group">
+              <label for="cooldownDriver">Dias para motorista</label>
+              <input id="cooldownDriver" type="number" min="0" max="365" value="10" />
+            </div>
+            <div class="form-group">
+              <label for="cooldownGraphic">Dias para gráfica</label>
+              <input id="cooldownGraphic" type="number" min="0" max="365" value="10" />
+            </div>
+          </div>
+          <div class="form-actions">
+            <button class="btn btn--primary" id="btnSaveCooldown">Salvar</button>
+          </div>
+          <p class="small muted" id="cooldownMessage"></p>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="driverDetailModal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-modal-dismiss>&times;</button>
+      <h2 class="modal-title" id="driverModalTitle">Motorista</h2>
+      <form id="driverDetailForm">
+        <p class="small muted" id="driverDetailHint">Edite os campos abaixo e salve para atualizar a planilha.</p>
+        <div class="modal-body">
+          <div class="form-grid" id="driverDetailFields"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" data-modal-dismiss>Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="driverDetailSubmit">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="driverFormModal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-modal-dismiss>&times;</button>
+      <h2 class="modal-title">Adicionar motorista</h2>
+      <form id="driverForm">
+        <p class="small muted" id="driverFormHint">Preencha os campos abaixo para adicionar um motorista a esta campanha.</p>
+        <div class="form-grid" id="driverFormFields"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn" data-modal-dismiss>Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="driverFormSubmit">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="graphicFormModal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-modal-dismiss>&times;</button>
+      <h2 class="modal-title" id="graphicModalTitle">Adicionar grafica</h2>
+      <form id="graphicForm">
+        <input type="hidden" id="graphicIdField" />
+        <p class="small muted" id="graphicFormHint">Defina os dados de contato da grafica responsavel por esta campanha.</p>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="graphicFieldName">Nome da grafica</label>
+            <input id="graphicFieldName" name="name" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="graphicFieldEmail">Email</label>
+            <input id="graphicFieldEmail" name="email" type="email" placeholder="contato@empresa.com" />
+          </div>
+          <div class="form-group">
+            <label for="graphicFieldPhone">Telefone</label>
+            <input id="graphicFieldPhone" name="phone" type="text" placeholder="(00) 0000-0000" />
+          </div>
+          <div class="form-group">
+            <label for="graphicFieldResp1Name">Responsavel 1 nome</label>
+            <input id="graphicFieldResp1Name" name="responsible1Name" type="text" required />
+          </div>
+          <div class="form-group">
+            <label for="graphicFieldResp1Phone">Responsavel 1 telefone</label>
+            <input id="graphicFieldResp1Phone" name="responsible1Phone" type="text" placeholder="(00) 0000-0000" />
+          </div>
+          <div class="form-group">
+            <label for="graphicFieldResp2Name">Responsavel 2 nome</label>
+            <input id="graphicFieldResp2Name" name="responsible2Name" type="text" />
+          </div>
+          <div class="form-group">
+            <label for="graphicFieldResp2Phone">Responsavel 2 telefone</label>
+            <input id="graphicFieldResp2Phone" name="responsible2Phone" type="text" placeholder="(00) 0000-0000" />
+          </div>
+          <div class="form-group form-group--full">
+            <label for="graphicFieldNotes">Observacoes</label>
+            <textarea id="graphicFieldNotes" name="notes" rows="3" placeholder="Instrucoes adicionais, horarios de atendimento, etc."></textarea>
+          </div>
+        </div>
+        <p class="form-message" id="graphicFormMessage"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn" data-modal-dismiss>Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="graphicFormSubmit">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- KM Import Modal -->
+  <div class="modal hidden" id="importKmModal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-modal-dismiss>&times;</button>
+      <h2 class="modal-title">Importar KM</h2>
+      <form id="importKmForm">
+        <p class="small muted" id="importKmHint">Informe o ID da planilha e o nome da aba para importar os dados de KM.</p>
+        <div class="modal-body">
+          <div class="form-grid">
+            <div class="form-group form-group--full">
+              <label for="importKmSheetId">ID da planilha (Google Sheets)</label>
+              <input id="importKmSheetId" name="spreadsheetId" type="text" autocomplete="off" required />
+            </div>
+            <div class="form-group form-group--full">
+              <label for="importKmSheetName">Nome da aba</label>
+              <input id="importKmSheetName" name="sheetName" type="text" autocomplete="off" value="Planilha1" />
+            </div>
+          </div>
+        </div>
+        <p class="form-message" id="importKmMessage"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn" data-modal-dismiss>Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="importKmSubmit">Importar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  
+  <!-- KM Edit Modal -->
+  <div class="modal hidden" id="kmEditModal" aria-hidden="true">
+    <div class="modal-backdrop" data-modal-dismiss></div>
+    <div class="modal-card">
+      <button class="modal-close" type="button" data-modal-dismiss>&times;</button>
+      <h2 class="modal-title">Editar KM / Metas</h2>
+      <form id="kmEditForm">
+        <p class="small muted" id="kmEditHint">Edite os campos da linha de KM e salve para atualizar a planilha.</p>
+        <div class="modal-body">
+          <div class="form-grid" id="kmEditFields"></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn" data-modal-dismiss>Cancelar</button>
+          <button type="submit" class="btn btn--primary" id="kmEditSubmit">Salvar KM</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="./js/admin-ui.js"></script>
+  <script src="./js/campaign.js"></script>
+</body>
+</html>
+
+

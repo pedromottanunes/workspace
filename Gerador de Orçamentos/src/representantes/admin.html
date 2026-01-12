@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicitações de representantes - OD Drive</title>
+  <link rel="stylesheet" href="../../styles/theme.css">
+  <link rel="stylesheet" href="../../styles/globals.css">
+  <style>
+    body{margin:0;background:#f6f7f8;font-family:"Work Sans",system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#101922;}
+    .shell{width:min(1100px,94vw);margin:24px auto;padding-bottom:32px;}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}
+    .top h1{margin:0;font-size:22px;}
+    .card{background:#fff;border:1px solid #e6e9ed;border-radius:16px;box-shadow:0 6px 24px rgba(16,25,34,0.06),0 2px 8px rgba(16,25,34,0.04);padding:16px;}
+    table{width:100%;border-collapse:collapse;}
+    th,td{padding:10px 8px;border-bottom:1px solid #e6e9ed;text-align:left;font-size:14px;}
+    th{color:#6b7785;text-transform:uppercase;font-size:12px;letter-spacing:.2px;}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:12px;font-weight:700;border:1px solid #cfe3fb;background:#e5f0fb;color:#1173d4;}
+    .pill.conv{background:#eaf8f1;border-color:#cceede;color:#167347;}
+    .pill.av{background:#fff4e0;border-color:#ffe1aa;color:#e39225;}
+    .pill.novo{background:#eef1f4;border-color:#e6e9ed;color:#101922;}
+    .btn{appearance:none;border:1px solid transparent;border-radius:10px;padding:8px 12px;font-weight:700;cursor:pointer;transition:.14s ease;}
+    .btn.primary{background:#1173d4;color:#fff;}
+    .btn.ghost{background:#fff;border-color:#e6e9ed;color:#101922;}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 10px 20px rgba(16,25,34,0.10);}
+    .badge{font-size:12px;color:#6b7785;}
+    .empty{padding:16px;color:#6b7785;text-align:center;}
+    @media(max-width:780px){table,thead,tbody,tr,td,th{display:block;}th{display:none;}td{border-bottom:1px solid #e6e9ed;margin-bottom:8px;}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="top">
+      <div>
+        <h1>Solicitações de representantes</h1>
+        <div class="badge">Novas entradas chegam aqui para curadoria do time.</div>
+      </div>
+      <button id="refreshBtn" class="btn ghost">Atualizar</button>
+    </div>
+    <div class="card" id="listCard">
+      <div id="tableWrap"></div>
+    </div>
+  </div>
+
+  <script>
+    const tableWrap = document.getElementById('tableWrap');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    function getApiBase() {
+      const { hostname, protocol } = window.location;
+      const backendPort = '5173';
+      const proto = protocol === 'https:' ? 'https:' : 'http:';
+      return `${proto}//${hostname}:${backendPort}`;
+    }
+
+    function badge(status){
+      const map = {convertida:'pill conv', em_avaliacao:'pill av', aprovado:'pill av', novo:'pill novo'};
+      const label = {
+        convertida:'Convertida',
+        em_avaliacao:'Em avaliação',
+        aprovado:'Aprovada',
+        novo:'Nova'
+      }[status] || status;
+      return `<span class="${map[status]||'pill'}">${label}</span>`;
+    }
+
+    async function fetchList() {
+      tableWrap.innerHTML = '<div class="empty">Carregando...</div>';
+      try {
+        const res = await fetch(`${getApiBase()}/api/representatives/requests`);
+        const data = await res.json();
+        renderTable(data || []);
+      } catch (err) {
+        console.error(err);
+        tableWrap.innerHTML = '<div class="empty">Erro ao carregar. Verifique a API.</div>';
+      }
+    }
+
+    function renderTable(list){
+      if (!list.length){
+        tableWrap.innerHTML = '<div class="empty">Nenhuma solicitação no momento.</div>';
+        return;
+      }
+      const rows = list.map(item => {
+        const created = item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '--';
+        return `
+          <tr>
+            <td><strong>${item.anunciante || item.empresa || 'Sem nome'}</strong><br><small>${item.pracas || ''}</small></td>
+            <td>${item.representanteNome}<br><small>${item.representanteEmail}</small></td>
+            <td>${item.numeroCarros || '--'}</td>
+            <td>${item.tempoCampanhaDias || '--'}</td>
+            <td>${badge(item.status)}</td>
+            <td>${created}</td>
+            <td>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn primary" onclick="convert('${item.id}')">Gerar minuta</button>
+                <button class="btn ghost" onclick="mark('${item.id}','em_avaliacao')">Em avaliação</button>
+                <button class="btn ghost" onclick="mark('${item.id}','aprovado')">Aprovar</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tableWrap.innerHTML = `
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Representante</th>
+                <th>Carros</th>
+                <th>Dias</th>
+                <th>Status</th>
+                <th>Recebido</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    async function mark(id, status){
+      await fetch(`${getApiBase()}/api/representatives/requests/${id}/status`,{
+        method:'PATCH',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({status})
+      }).catch(()=>{});
+      fetchList();
+    }
+
+    async function convert(id){
+      const res = await fetch(`${getApiBase()}/api/representatives/requests/${id}/convert`, { method:'POST' });
+      const body = await res.json().catch(()=> ({}));
+      if (res.ok) {
+        alert('Minuta criada. ID: ' + (body.proposalId || 'novo'));
+        fetchList();
+      } else {
+        alert(body.error || 'Falha ao converter.');
+      }
+    }
+
+    refreshBtn.addEventListener('click', fetchList);
+    fetchList();
+  </script>
+</body>
+</html>
