@@ -149,7 +149,12 @@ class GoogleSlidesGenerator {
 
       await this.applyProductPlaceholders(proposalData, requests);
       await this.applyPlanilhaPlaceholders(presentationId, proposalData, requests, options);
-      await this.removeUnusedProductSlides(presentationId, proposalData, requests);
+      
+      // Só remove slides não usados quando usar template genérico (2+ orçamentos)
+      const qtdOrcamentos = proposalData?.comercial?.qtdOrcamentos || proposalData?.orcamentos?.length || 1;
+      if (qtdOrcamentos > 1) {
+        await this.removeUnusedProductSlides(presentationId, proposalData, requests);
+      }
 
       // 4. Aplicar atualizações
       report(55, 'Aplicando placeholders no Slides...');
