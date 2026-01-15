@@ -18,6 +18,7 @@ const GRAPHICS_COLLECTION = 'graphics';
 const EVIDENCE_COLLECTION = 'evidence';
 const ADMIN_USERS_COLLECTION = 'admin_users';
 const AUDIT_LOG_COLLECTION = 'admin_audit_log';
+const REPRESENTATIVE_REQUESTS_COLLECTION = 'representative_requests';
 
 let client = null;
 let db = null;
@@ -991,6 +992,86 @@ export async function listAuditLogs(filters = {}, options = {}) {
   return logs;
 }
 
+// ============================================
+// REPRESENTATIVE REQUESTS (Solicitações)
+// ============================================
+
+export async function createRepresentativeRequest(requestData) {
+  const database = await getDb();
+  const now = new Date();
+  const doc = {
+    ...requestData,
+    createdAt: now,
+    updatedAt: now,
+  };
+  const result = await database.collection(REPRESENTATIVE_REQUESTS_COLLECTION).insertOne(doc);
+  return { ...doc, _id: result.insertedId };
+}
+
+export async function listRepresentativeRequests() {
+  const database = await getDb();
+  const requests = await database
+    .collection(REPRESENTATIVE_REQUESTS_COLLECTION)
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray();
+  return requests;
+}
+
+export async function getRepresentativeRequestById(requestId) {
+  const database = await getDb();
+  const request = await database
+    .collection(REPRESENTATIVE_REQUESTS_COLLECTION)
+    .findOne({ id: requestId });
+  return request;
+}
+
+export async function updateRepresentativeRequestStatus(requestId, status) {
+  const database = await getDb();
+  const result = await database
+    .collection(REPRESENTATIVE_REQUESTS_COLLECTION)
+    .updateOne(
+      { id: requestId },
+      { 
+        $set: { 
+          status, 
+          updatedAt: new Date() 
+        } 
+      }
+    );
+  if (result.matchedCount === 0) {
+    throw new Error('Solicitação não encontrada');
+  }
+  return await getRepresentativeRequestById(requestId);
+}
+
+export async function updateRepresentativeRequest(requestId, updates) {
+  const database = await getDb();
+  const result = await database
+    .collection(REPRESENTATIVE_REQUESTS_COLLECTION)
+    .updateOne(
+      { id: requestId },
+      { 
+        $set: { 
+          ...updates,
+          updatedAt: new Date() 
+        } 
+      }
+    );
+  if (result.matchedCount === 0) {
+    throw new Error('Solicitação não encontrada');
+  }
+  return await getRepresentativeRequestById(requestId);
+}
+
+export async function deleteRepresentativeRequest(requestId) {
+  const database = await getDb();
+  const result = await database
+    .collection(REPRESENTATIVE_REQUESTS_COLLECTION)
+    .deleteOne({ id: requestId });
+  return result.deletedCount > 0;
+}
+
 export default {
   uploadBase64ImageMongo,
   getDriverStorageBasePath,
@@ -1029,4 +1110,10 @@ export default {
   updateAdminUser,
   insertAuditLog,
   listAuditLogs,
+  createRepresentativeRequest,
+  listRepresentativeRequests,
+  getRepresentativeRequestById,
+  updateRepresentativeRequestStatus,
+  updateRepresentativeRequest,
+  deleteRepresentativeRequest,
 };

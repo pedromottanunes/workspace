@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoClient = require('../services/mongoClient');
 
 function sanitizeText(value = '') {
   return String(value || '').trim().slice(0, 2000);
@@ -38,15 +39,24 @@ module.exports = function buildRepresentativesRouter(store) {
   const router = express.Router();
 
   router.get('/requests', async (req, res) => {
-    const list = (await store.get('repRequests')) || [];
-    res.json(list);
+    try {
+      const list = await mongoClient.listRepresentativeRequests();
+      res.json(list);
+    } catch (err) {
+      console.error('Erro ao listar solicitações:', err);
+      res.status(500).json({ error: 'Erro ao listar solicitações' });
+    }
   });
 
   router.get('/requests/:id', async (req, res) => {
-    const list = (await store.get('repRequests')) || [];
-    const found = list.find((item) => item.id === req.params.id);
-    if (!found) return res.status(404).json({ error: 'Solicitação não encontrada' });
-    res.json(found);
+    try {
+      const found = await mongoClient.getRepresentativeRequestById(req.params.id);
+      if (!found) return res.status(404).json({ error: 'Solicitação não encontrada' });
+      res.json(found);
+    } catch (err) {
+      console.error('Erro ao buscar solicitação:', err);
+      res.status(500).json({ error: 'Erro ao buscar solicitação' });
+    }
   });
 
   router.post('/requests', async (req, res) => {
@@ -72,69 +82,82 @@ module.exports = function buildRepresentativesRouter(store) {
       return res.status(400).json({ error: 'Informe o anunciante ou empresa.' });
     }
 
-    const list = (await store.get('repRequests')) || [];
-    const now = new Date().toISOString();
-    const entry = {
-      id: `rep-${Date.now()}`,
-      status: 'novo',
-      createdAt: now,
-      updatedAt: now,
-      representanteNome: sanitizeText(representanteNome),
-      representanteEmail: sanitizeText(representanteEmail),
-      representanteTelefone: sanitizeText(representanteTelefone),
-      anunciante: sanitizeText(anunciante),
-      empresa: sanitizeText(empresa),
-      pracas: sanitizeText(pracas),
-      numeroCarros: Number(numeroCarros) || null,
-      tempoCampanhaDias: Number(tempoCampanhaDias) || null,
-      dataInicio: sanitizeText(dataInicio),
-      dataFim: sanitizeText(dataFim),
-      validadeDias: Number(validadeDias) || null,
-      observacoes: sanitizeText(observacoes || '')
-    };
+    try {
+      const entry = {
+        id: `rep-${Date.now()}`,
+        status: 'novo',
+        representanteNome: sanitizeText(representanteNome),
+        representanteEmail: sanitizeText(representanteEmail),
+        representanteTelefone: sanitizeText(representanteTelefone),
+        anunciante: sanitizeText(anunciante),
+        empresa: sanitizeText(empresa),
+        pracas: sanitizeText(pracas),
+        numeroCarros: Number(numeroCarros) || null,
+        tempoCampanhaDias: Number(tempoCampanhaDias) || null,
+        dataInicio: sanitizeText(dataInicio),
+        dataFim: sanitizeText(dataFim),
+        validadeDias: Number(validadeDias) || null,
+        observacoes: sanitizeText(observacoes || '')
+      };
 
-    list.unshift(entry);
-    await store.set('repRequests', list);
-    res.status(201).json(entry);
+      const created = await mongoClient.createRepresentativeRequest(entry);
+      res.status(201).json(created);
+    } catch (err) {
+      console.error('Erro ao criar solicitação:', err);
+      res.status(500).json({ error: 'Erro ao criar solicitação' });
+    }
   });
 
   router.patch('/requests/:id/status', async (req, res) => {
     const { status } = req.body || {};
-    const list = (await store.get('repRequests')) || [];
-    const idx = list.findIndex((item) => item.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Solicitação não encontrada' });
-    list[idx].status = sanitizeText(status || 'em_avaliacao');
-    list[idx].updatedAt = new Date().toISOString();
-    await store.set('repRequests', list);
-    res.json(list[idx]);
+    try {
+      const updated = await mongoClient.updateRepresentativeRequestStatus(
+        req.params.id,
+        sanitizeText(status || 'em_avaliacao')
+      );
+      res.json(updated);
+    } catch (err) {
+      if (err.message === 'Solicitação não encontrada') {
+        return res.status(404).json({ error: err.message });
+      }
+      console.error('Erro ao atualizar status:', err);
+      res.status(500).json({ error: 'Erro ao atualizar status' });
+    }
   });
 
   router.post('/requests/:id/convert', async (req, res) => {
-    const list = (await store.get('repRequests')) || [];
-    const idx = list.findIndex((item) => item.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Solicitação não encontrada' });
+    try {
+      const request = await mongoClient.getRepresentativeRequestById(req.params.id);
+      if (!request) return res.status(404).json({ error: 'Solicitação não encontrada' });
 
-    const proposals = (await store.get('proposals')) || [];
-    const proposal = buildProposalFromRequest(list[idx]);
-    proposals.push(proposal);
-    await store.set('proposals', proposals);
+      const proposals = (await store.get('proposals')) || [];
+      const proposal = buildProposalFromRequest(request);
+      proposals.push(proposal);
+      await store.set('proposals', proposals);
 
-    list[idx].status = 'convertida';
-    list[idx].updatedAt = new Date().toISOString();
-    list[idx].proposalId = proposal.id;
-    await store.set('repRequests', list);
+      await mongoClient.updateRepresentativeRequest(req.params.id, {
+        status: 'convertida',
+        proposalId: proposal.id
+      });
 
-    res.json({ success: true, proposalId: proposal.id });
+      res.json({ success: true, proposalId: proposal.id });
+    } catch (err) {
+      console.error('Erro ao converter solicitação:', err);
+      res.status(500).json({ error: 'Erro ao converter solicitação' });
+    }
   });
 
   router.delete('/requests/:id', async (req, res) => {
-    const list = (await store.get('repRequests')) || [];
-    const idx = list.findIndex((item) => item.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Solicitação não encontrada' });
-    
-    list.splice(idx, 1);
-    await store.set('repRequests', list);
-    res.json({ success: true, message: 'Solicitação removida com sucesso' });
+    try {
+      const deleted = await mongoClient.deleteRepresentativeRequest(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: 'Solicitação não encontrada' });
+      }
+      res.json({ success: true, message: 'Solicitação removida com sucesso' });
+    } catch (err) {
+      console.error('Erro ao remover solicitação:', err);
+      res.status(500).json({ error: 'Erro ao remover solicitação' });
+    }
   });
 
   return router;
