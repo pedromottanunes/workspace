@@ -248,10 +248,20 @@
       confirmRemove.textContent = 'Verificando...';
 
       try {
-        // Validar credenciais no backend
-        const backendUrl = window.WORKSPACE_CONFIG 
-          ? window.WORKSPACE_CONFIG.getBackendUrl() 
-          : getApiBase().replace(':5173', ':5174');
+        // Validar credenciais no backend (oddrive-backend em produção)
+        const currentOrigin = window.location.origin;
+        let backendUrl;
+        
+        if (currentOrigin.includes('onrender.com')) {
+          // Em produção no Render, usar URL do backend
+          backendUrl = currentOrigin.replace('oddrive-gerador', 'oddrive-backend');
+        } else if (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1')) {
+          // Em desenvolvimento local
+          backendUrl = currentOrigin.replace(':5173', ':5174');
+        } else {
+          // Fallback
+          backendUrl = 'https://oddrive-backend.onrender.com';
+        }
         
         const authRes = await fetch(`${backendUrl}/api/admin/login`, {
           method: 'POST',
