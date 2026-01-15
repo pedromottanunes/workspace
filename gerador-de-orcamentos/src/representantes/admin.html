@@ -102,6 +102,7 @@
                 <button class="btn primary" onclick="convert('${item.id}')">Gerar minuta</button>
                 <button class="btn ghost" onclick="mark('${item.id}','em_avaliacao')">Em avaliação</button>
                 <button class="btn ghost" onclick="mark('${item.id}','aprovado')">Aprovar</button>
+                <button class="btn ghost" onclick="removeRequest('${item.id}')" style="background:#c0392b;color:#fff;border-color:#c0392b;">Remover</button>
               </div>
             </td>
           </tr>
@@ -146,6 +147,12 @@
       } else {
         alert(body.error || 'Falha ao converter.');
       }
+    }
+
+    function removeRequest(id){
+      // TODO: Abrir modal de confirmação com login/senha
+      alert('Função de remover será implementada com modal de autenticação');
+      console.log('Remover solicitação ID:', id);
     }
 
     refreshBtn.addEventListener('click', fetchList);
