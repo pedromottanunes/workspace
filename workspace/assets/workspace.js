@@ -93,6 +93,6 @@
   logoutBtn?.addEventListener('click', () => {
     localStorage.removeItem('adminToken');
     localStorage.removeItem('adminUser');
-    window.location.href = '/workspace/login.html';
+    window.location.href = '/login.html';
   });
 })();

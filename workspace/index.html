@@ -6,6 +6,16 @@
   <title>Workspace OD Drive</title>
   <link rel="icon" type="image/png" href="assets/images/logo-oddrive.png">
   <link rel="stylesheet" href="assets/style.css">
+  <script>
+    // Verificação IMEDIATA de autenticação antes de renderizar qualquer coisa
+    (function() {
+      const token = localStorage.getItem('adminToken');
+      if (!token) {
+        // Redireciona imediatamente para login, sem mostrar a página
+        window.location.replace('/login.html');
+      }
+    })();
+  </script>
 </head>
 <body>
   <header class="topbar">

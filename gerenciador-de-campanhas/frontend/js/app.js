@@ -10,32 +10,32 @@ const adminPromptFields = document.getElementById('adminPromptFields');
 const adminPromptConfirm = document.getElementById('adminPromptConfirm');
 const adminPromptCancel = document.getElementById('adminPromptCancel');
 
-// Verifica autenticação admin - aceita token via URL ou localStorage
+// Aceita token via URL (vindo do workspace) e salva no localStorage
 let adminToken = localStorage.getItem('adminToken');
 
-// Se não tem token no localStorage, verifica se veio pela URL
-if (!adminToken) {
-  const urlParams = new URLSearchParams(window.location.search);
-  const tokenFromUrl = urlParams.get('token');
+// Se token vier pela URL, salva e remove da URL
+const urlParams = new URLSearchParams(window.location.search);
+const tokenFromUrl = urlParams.get('token');
+
+if (tokenFromUrl) {
+  // Salva o token no localStorage desta origem
+  localStorage.setItem('adminToken', tokenFromUrl);
+  adminToken = tokenFromUrl;
   
-  if (tokenFromUrl) {
-    // Salva o token no localStorage desta origem
-    localStorage.setItem('adminToken', tokenFromUrl);
-    adminToken = tokenFromUrl;
-    
-    // Tenta pegar o user também (se vier na URL ou faz fetch)
-    const userFromUrl = urlParams.get('user');
-    if (userFromUrl) {
-      localStorage.setItem('adminUser', decodeURIComponent(userFromUrl));
-    }
-    
-    // Remove o token da URL para segurança
-    window.history.replaceState({}, document.title, window.location.pathname);
-  } else {
-    // Sem token nem na URL nem no localStorage - redireciona
-    window.location.href = '/workspace/login.html';
+  // Tenta pegar o user também (se vier na URL)
+  const userFromUrl = urlParams.get('user');
+  if (userFromUrl) {
+    localStorage.setItem('adminUser', decodeURIComponent(userFromUrl));
   }
+  
+  // Remove o token da URL para segurança
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
+
+// NOTA: Autenticação é feita no workspace. Se chegou aqui sem token,
+// significa que veio direto (não pelo workspace), então aceita acesso livre
+// ou você pode descomentar a linha abaixo para forçar login:
+// if (!adminToken) { window.location.href = '/workspace/login.html'; }
 
 // Função para fazer fetch com token
 function authFetch(url, options = {}) {
