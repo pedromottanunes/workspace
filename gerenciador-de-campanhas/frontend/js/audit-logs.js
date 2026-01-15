@@ -1,18 +1,7 @@
 const API_BASE = window.location.origin;
 
-// Aceita token via URL (vindo do workspace) e salva no localStorage
+// Token já foi capturado no index.html inline script
 let adminToken = localStorage.getItem('adminToken');
-
-const urlParams = new URLSearchParams(window.location.search);
-const tokenFromUrl = urlParams.get('token');
-
-if (tokenFromUrl) {
-  localStorage.setItem('adminToken', tokenFromUrl);
-  adminToken = tokenFromUrl;
-  window.history.replaceState({}, document.title, window.location.pathname);
-}
-
-// Autenticação é gerenciada pelo workspace - não força login aqui
 
 function authFetch(url, options = {}) {
   const headers = options.headers || {};
