@@ -1,8 +1,16 @@
-// Autenticação admin
-const adminToken = localStorage.getItem('adminToken');
-if (!adminToken) {
-  window.location.href = '/login.html';
+// Aceita token via URL (vindo do workspace) e salva no localStorage
+let adminToken = localStorage.getItem('adminToken');
+
+const urlParams = new URLSearchParams(window.location.search);
+const tokenFromUrl = urlParams.get('token');
+
+if (tokenFromUrl) {
+  localStorage.setItem('adminToken', tokenFromUrl);
+  adminToken = tokenFromUrl;
+  window.history.replaceState({}, document.title, window.location.pathname);
 }
+
+// Autenticação é gerenciada pelo workspace - não força login aqui
 
 function authFetch(url, options = {}) {
   const headers = options.headers || {};
