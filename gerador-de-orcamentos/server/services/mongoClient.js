@@ -3,6 +3,7 @@ const { MongoClient } = require('mongodb');
 const MONGO_URI = process.env.MONGO_URI || '';
 const MONGO_DB_NAME = process.env.MONGO_DB_NAME || 'odrive_app';
 const REPRESENTATIVE_REQUESTS_COLLECTION = 'representative_requests';
+const PROPOSALS_COLLECTION = 'proposals';
 
 let client = null;
 let db = null;
@@ -99,6 +100,69 @@ async function deleteRepresentativeRequest(requestId) {
   return result.deletedCount > 0;
 }
 
+// ============================================
+// CRUD para Proposals (Orçamentos)
+// ============================================
+
+async function createProposal(proposalData) {
+  const database = await getDb();
+  const now = new Date();
+  const doc = {
+    ...proposalData,
+    id: proposalData?.id || Date.now().toString(),
+    createdAt: now,
+    updatedAt: now,
+    status: proposalData?.status || 'draft',
+  };
+  const result = await database.collection(PROPOSALS_COLLECTION).insertOne(doc);
+  return { ...doc, _id: result.insertedId };
+}
+
+async function listProposals() {
+  const database = await getDb();
+  const proposals = await database
+    .collection(PROPOSALS_COLLECTION)
+    .find({})
+    .sort({ createdAt: -1 })
+    .toArray();
+  return proposals;
+}
+
+async function getProposalById(proposalId) {
+  const database = await getDb();
+  const proposal = await database
+    .collection(PROPOSALS_COLLECTION)
+    .findOne({ id: proposalId });
+  return proposal;
+}
+
+async function updateProposal(proposalId, updates) {
+  const database = await getDb();
+  const result = await database
+    .collection(PROPOSALS_COLLECTION)
+    .updateOne(
+      { id: proposalId },
+      { 
+        $set: { 
+          ...updates,
+          updatedAt: new Date() 
+        } 
+      }
+    );
+  if (result.matchedCount === 0) {
+    throw new Error('Proposta não encontrada');
+  }
+  return await getProposalById(proposalId);
+}
+
+async function deleteProposal(proposalId) {
+  const database = await getDb();
+  const result = await database
+    .collection(PROPOSALS_COLLECTION)
+    .deleteOne({ id: proposalId });
+  return result.deletedCount > 0;
+}
+
 module.exports = {
   getDb,
   createRepresentativeRequest,
@@ -107,4 +171,10 @@ module.exports = {
   updateRepresentativeRequestStatus,
   updateRepresentativeRequest,
   deleteRepresentativeRequest,
+  // Proposals
+  createProposal,
+  listProposals,
+  getProposalById,
+  updateProposal,
+  deleteProposal,
 };

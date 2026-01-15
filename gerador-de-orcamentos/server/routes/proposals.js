@@ -1,61 +1,66 @@
 const express = require('express');
+const mongoClient = require('../services/mongoClient');
 
-module.exports = function buildProposalsRouter(store) {
+module.exports = function buildProposalsRouter() {
   const router = express.Router();
 
   router.get('/', async (req, res) => {
-    const proposals = (await store.get('proposals')) || [];
-    res.json(proposals);
+    try {
+      const proposals = await mongoClient.listProposals();
+      res.json(proposals);
+    } catch (error) {
+      console.error('[PROPOSALS] Erro ao listar propostas:', error);
+      res.status(500).json({ message: 'Erro ao listar propostas.' });
+    }
   });
 
   router.get('/:id', async (req, res) => {
-    const proposals = (await store.get('proposals')) || [];
-    const found = proposals.find((proposal) => proposal.id === req.params.id);
-    if (!found) {
-      return res.status(404).json({ message: 'Proposta nÇœo encontrada.' });
+    try {
+      const found = await mongoClient.getProposalById(req.params.id);
+      if (!found) {
+        return res.status(404).json({ message: 'Proposta não encontrada.' });
+      }
+      res.json(found);
+    } catch (error) {
+      console.error('[PROPOSALS] Erro ao buscar proposta:', error);
+      res.status(500).json({ message: 'Erro ao buscar proposta.' });
     }
-    res.json(found);
   });
 
   router.post('/', async (req, res) => {
-    const proposals = (await store.get('proposals')) || [];
-    const now = new Date().toISOString();
-    const proposal = {
-      ...req.body,
-      id: req.body?.id || Date.now().toString(),
-      createdAt: now,
-      updatedAt: now,
-      status: req.body?.status || 'draft'
-    };
-    proposals.push(proposal);
-    await store.set('proposals', proposals);
-    res.status(201).json(proposal);
+    try {
+      const proposal = await mongoClient.createProposal(req.body);
+      res.status(201).json(proposal);
+    } catch (error) {
+      console.error('[PROPOSALS] Erro ao criar proposta:', error);
+      res.status(500).json({ message: 'Erro ao criar proposta.' });
+    }
   });
 
   router.put('/:id', async (req, res) => {
-    const proposals = (await store.get('proposals')) || [];
-    const index = proposals.findIndex((proposal) => proposal.id === req.params.id);
-    if (index === -1) {
-      return res.status(404).json({ message: 'Proposta nÇœo encontrada.' });
+    try {
+      const updated = await mongoClient.updateProposal(req.params.id, req.body);
+      res.json(updated);
+    } catch (error) {
+      if (error.message === 'Proposta não encontrada') {
+        return res.status(404).json({ message: error.message });
+      }
+      console.error('[PROPOSALS] Erro ao atualizar proposta:', error);
+      res.status(500).json({ message: 'Erro ao atualizar proposta.' });
     }
-
-    const updated = {
-      ...proposals[index],
-      ...req.body,
-      id: proposals[index].id,
-      updatedAt: new Date().toISOString()
-    };
-
-    proposals[index] = updated;
-    await store.set('proposals', proposals);
-    res.json(updated);
   });
 
   router.delete('/:id', async (req, res) => {
-    const proposals = (await store.get('proposals')) || [];
-    const filtered = proposals.filter((proposal) => proposal.id !== req.params.id);
-    await store.set('proposals', filtered);
-    res.json({ success: true });
+    try {
+      const deleted = await mongoClient.deleteProposal(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ message: 'Proposta não encontrada.' });
+      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('[PROPOSALS] Erro ao deletar proposta:', error);
+      res.status(500).json({ message: 'Erro ao deletar proposta.' });
+    }
   });
 
   return router;

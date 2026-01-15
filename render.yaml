@@ -61,7 +61,10 @@ services:
         value: ./tmp/exports
       - key: UPLOADS_PATH
         value: ./tmp/uploads
+      - key: MONGO_DB_NAME
+        value: odrive_app
       # ⚠️ ATENÇÃO: Configure os seguintes secrets no painel do Render:
+      # - MONGO_URI (string de conexão MongoDB Atlas - mesmo do backend)
       # - GOOGLE_CLIENT_ID
       # - GOOGLE_CLIENT_SECRET
       # - GOOGLE_REDIRECT_URI (ex: https://oddrive-gerador.onrender.com/api/slides/oauth/callback)
