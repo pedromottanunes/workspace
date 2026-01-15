@@ -26,6 +26,23 @@
     .badge{font-size:12px;color:#6b7785;}
     .empty{padding:16px;color:#6b7785;text-align:center;}
     @media(max-width:780px){table,thead,tbody,tr,td,th{display:block;}th{display:none;}td{border-bottom:1px solid #e6e9ed;margin-bottom:8px;}}
+    
+    /* Modal de confirmação */
+    .modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(16,25,34,0.75);z-index:9999;align-items:center;justify-content:center;}
+    .modal-overlay.show{display:flex;}
+    .modal-box{background:#fff;border-radius:16px;box-shadow:0 24px 48px rgba(16,25,34,0.2);width:min(420px,90vw);padding:28px;}
+    .modal-header{margin-bottom:20px;}
+    .modal-header h2{margin:0 0 8px 0;font-size:20px;color:#101922;}
+    .modal-header p{margin:0;font-size:14px;color:#6b7785;}
+    .modal-body{margin-bottom:20px;}
+    .form-field{margin-bottom:14px;}
+    .form-field label{display:block;font-weight:700;margin-bottom:6px;font-size:13px;color:#3d4753;}
+    .form-field input{width:100%;padding:11px 12px;border:1px solid #e6e9ed;border-radius:10px;font:inherit;box-sizing:border-box;font-size:14px;}
+    .form-field input:focus{outline:none;border-color:#1173d4;box-shadow:0 0 0 3px rgba(17,115,212,0.18);}
+    .modal-error{background:#ffeaea;border:1px solid #ffc7c7;color:#c0392b;padding:10px;border-radius:8px;font-size:13px;margin-bottom:14px;display:none;}
+    .modal-error.show{display:block;}
+    .modal-actions{display:flex;gap:10px;justify-content:flex-end;}
+    .modal-actions .btn{min-width:100px;}
   </style>
 </head>
 <body>
@@ -39,6 +56,33 @@
     </div>
     <div class="card" id="listCard">
       <div id="tableWrap"></div>
+    </div>
+  </div>
+
+  <!-- Modal de confirmação para remover -->
+  <div class="modal-overlay" id="removeModal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h2>Confirmar remoção</h2>
+        <p>Digite suas credenciais para confirmar a remoção desta solicitação.</p>
+      </div>
+      <div class="modal-body">
+        <div class="modal-error" id="removeError"></div>
+        <form id="removeForm">
+          <div class="form-field">
+            <label for="removeUsername">Usuário</label>
+            <input type="text" id="removeUsername" name="username" required autocomplete="username">
+          </div>
+          <div class="form-field">
+            <label for="removePassword">Senha</label>
+            <input type="password" id="removePassword" name="password" required autocomplete="current-password">
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn ghost" id="cancelRemove">Cancelar</button>
+            <button type="submit" class="btn primary" id="confirmRemove" style="background:#c0392b;border-color:#c0392b;">Remover</button>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
@@ -150,10 +194,100 @@
     }
 
     function removeRequest(id){
-      // TODO: Abrir modal de confirmação com login/senha
-      alert('Função de remover será implementada com modal de autenticação');
-      console.log('Remover solicitação ID:', id);
+      currentRemoveId = id;
+      removeModal.classList.add('show');
+      removeUsername.value = '';
+      removePassword.value = '';
+      removeUsername.focus();
+      hideRemoveError();
     }
+
+    // Modal de remoção
+    const removeModal = document.getElementById('removeModal');
+    const removeForm = document.getElementById('removeForm');
+    const removeUsername = document.getElementById('removeUsername');
+    const removePassword = document.getElementById('removePassword');
+    const cancelRemove = document.getElementById('cancelRemove');
+    const confirmRemove = document.getElementById('confirmRemove');
+    const removeError = document.getElementById('removeError');
+    let currentRemoveId = null;
+
+    function showRemoveError(msg) {
+      removeError.textContent = msg;
+      removeError.classList.add('show');
+    }
+
+    function hideRemoveError() {
+      removeError.classList.remove('show');
+    }
+
+    function closeRemoveModal() {
+      removeModal.classList.remove('show');
+      currentRemoveId = null;
+    }
+
+    cancelRemove.addEventListener('click', closeRemoveModal);
+    
+    removeModal.addEventListener('click', (e) => {
+      if (e.target === removeModal) closeRemoveModal();
+    });
+
+    removeForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      hideRemoveError();
+
+      const username = removeUsername.value.trim();
+      const password = removePassword.value;
+
+      if (!username || !password) {
+        showRemoveError('Preencha usuário e senha.');
+        return;
+      }
+
+      confirmRemove.disabled = true;
+      confirmRemove.textContent = 'Verificando...';
+
+      try {
+        // Validar credenciais no backend
+        const backendUrl = window.WORKSPACE_CONFIG 
+          ? window.WORKSPACE_CONFIG.getBackendUrl() 
+          : getApiBase().replace(':5173', ':5174');
+        
+        const authRes = await fetch(`${backendUrl}/api/admin/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!authRes.ok) {
+          showRemoveError('Credenciais inválidas.');
+          confirmRemove.disabled = false;
+          confirmRemove.textContent = 'Remover';
+          return;
+        }
+
+        // Credenciais válidas, remover solicitação
+        confirmRemove.textContent = 'Removendo...';
+        const deleteRes = await fetch(`${getApiBase()}/api/representatives/requests/${currentRemoveId}`, {
+          method: 'DELETE'
+        });
+
+        if (deleteRes.ok) {
+          closeRemoveModal();
+          fetchList();
+        } else {
+          const errBody = await deleteRes.json().catch(() => ({}));
+          showRemoveError(errBody.error || 'Erro ao remover solicitação.');
+          confirmRemove.disabled = false;
+          confirmRemove.textContent = 'Remover';
+        }
+      } catch (err) {
+        console.error(err);
+        showRemoveError('Erro de conexão. Tente novamente.');
+        confirmRemove.disabled = false;
+        confirmRemove.textContent = 'Remover';
+      }
+    });
 
     refreshBtn.addEventListener('click', fetchList);
     fetchList();

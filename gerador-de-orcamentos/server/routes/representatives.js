@@ -127,5 +127,15 @@ module.exports = function buildRepresentativesRouter(store) {
     res.json({ success: true, proposalId: proposal.id });
   });
 
+  router.delete('/requests/:id', async (req, res) => {
+    const list = (await store.get('repRequests')) || [];
+    const idx = list.findIndex((item) => item.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'Solicitação não encontrada' });
+    
+    list.splice(idx, 1);
+    await store.set('repRequests', list);
+    res.json({ success: true, message: 'Solicitação removida com sucesso' });
+  });
+
   return router;
 };
