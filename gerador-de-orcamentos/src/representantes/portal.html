@@ -169,10 +169,16 @@
     const message = document.getElementById('message');
 
     function getApiBase() {
-      if (window.location.port === '5173') return window.location.origin;
-      const { hostname, protocol } = window.location;
-      const proto = protocol === 'https:' ? 'https:' : 'http:';
-      return `${proto}//${hostname}:5173`;
+      // Em produção (Render), usar origem sem porta
+      if (window.location.hostname.includes('onrender.com')) {
+        return window.location.origin;
+      }
+      // Em desenvolvimento local, usar porta 5173
+      if (window.location.port === '5173') {
+        return window.location.origin;
+      }
+      // Fallback para desenvolvimento local
+      return 'http://localhost:5173';
     }
 
     function showMsg(text, ok = false) {

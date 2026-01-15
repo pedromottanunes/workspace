@@ -47,10 +47,16 @@
     const refreshBtn = document.getElementById('refreshBtn');
 
     function getApiBase() {
-      const { hostname, protocol } = window.location;
-      const backendPort = '5173';
-      const proto = protocol === 'https:' ? 'https:' : 'http:';
-      return `${proto}//${hostname}:${backendPort}`;
+      // Em produção (Render), usar origem sem porta
+      if (window.location.hostname.includes('onrender.com')) {
+        return window.location.origin;
+      }
+      // Em desenvolvimento local, usar porta 5173
+      if (window.location.port === '5173') {
+        return window.location.origin;
+      }
+      // Fallback para desenvolvimento local
+      return 'http://localhost:5173';
     }
 
     function badge(status){
