@@ -47,7 +47,7 @@ const helmetOptions = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"], // Inline scripts removidos para reduzir superficie de XSS
+      scriptSrc: ["'self'", "'unsafe-inline'"], // unsafe-inline necessário para captura de token do URL
       styleSrc: ["'self'", "'unsafe-inline'", 'https:'],
       imgSrc: ["'self'", "data:", "blob:", "https:"],
       connectSrc: ["'self'", 'https:'],
