@@ -12,9 +12,13 @@
       const tokenFromUrl = urlParams.get('token');
       if (tokenFromUrl) {
         localStorage.setItem('adminToken', tokenFromUrl);
+        console.log('[AUTH] Token capturado da URL e salvo no localStorage');
         // Remove token da URL
         const newUrl = window.location.pathname;
         window.history.replaceState({}, document.title, newUrl);
+      } else {
+        const existingToken = localStorage.getItem('adminToken');
+        console.log('[AUTH] Sem token na URL. Token no localStorage:', existingToken ? 'PRESENTE' : 'AUSENTE');
       }
     })();
   </script>

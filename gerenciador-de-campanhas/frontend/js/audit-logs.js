@@ -2,17 +2,22 @@ const API_BASE = window.location.origin;
 
 // Token já foi capturado no index.html inline script
 let adminToken = localStorage.getItem('adminToken');
+console.log('[AUTH] Token carregado em audit-logs.js:', adminToken ? 'PRESENTE' : 'AUSENTE');
 
 function authFetch(url, options = {}) {
   const headers = options.headers || {};
-  headers['Authorization'] = `Bearer ${adminToken}`;
+  if (adminToken) {
+    headers['Authorization'] = `Bearer ${adminToken}`;
+  }
   return fetch(url, { ...options, headers });
 }
 
 function logout() {
+  console.log('[AUTH] Logout chamado de audit-logs');
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminUser');
-  window.location.href = '/login.html';
+  const workspaceUrl = window.WORKSPACE_CONFIG?.WORKSPACE_URL || window.location.origin.replace('backend', 'workspace');
+  window.location.href = `${workspaceUrl}/login.html`;
 }
 
 const filterUsername = document.getElementById('filterUsername');

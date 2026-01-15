@@ -12,22 +12,27 @@ const adminPromptCancel = document.getElementById('adminPromptCancel');
 
 // Token já foi capturado no index.html inline script
 let adminToken = localStorage.getItem('adminToken');
+console.log('[AUTH] Token carregado no app.js:', adminToken ? 'PRESENTE (' + adminToken.substring(0, 20) + '...)' : 'AUSENTE');
 
 // Autenticação é gerenciada pelo workspace - não força login aqui
 
 // Função para fazer fetch com token
 function authFetch(url, options = {}) {
   const headers = options.headers || {};
-  headers['Authorization'] = `Bearer ${adminToken}`;
+  if (adminToken) {
+    headers['Authorization'] = `Bearer ${adminToken}`;
+  }
   return fetch(url, { ...options, headers });
 }
 
 // Função para logout
 function logout() {
+  console.log('[AUTH] Logout chamado - limpando tokens e redirecionando');
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminUser');
-  // Redireciona para o workspace unificado
-  window.location.href = '/workspace/login.html';
+  // Redireciona para o workspace unificado (URL completa em produção)
+  const workspaceUrl = window.WORKSPACE_CONFIG?.WORKSPACE_URL || window.location.origin.replace('backend', 'workspace');
+  window.location.href = `${workspaceUrl}/login.html`;
 }
 
 // Feedback helpers (shared)
@@ -144,7 +149,12 @@ async function fetchJSON(url, opts) {
   const res = await authFetch(url, opts);
   if (!res.ok) {
     if (res.status === 401) {
-      logout();
+      console.warn('[AUTH] Recebeu 401 em', url, '- Token presente:', !!adminToken);
+      // Só faz logout se havia um token (token inválido/expirado)
+      // Se nunca teve token, não redireciona (deixa tentar novamente)
+      if (adminToken) {
+        logout();
+      }
       return;
     }
     const text = await res.text();

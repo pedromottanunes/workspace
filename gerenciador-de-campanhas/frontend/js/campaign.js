@@ -1,9 +1,12 @@
 // Token já foi capturado no index.html inline script
 let adminToken = localStorage.getItem('adminToken');
+console.log('[AUTH] Token carregado em campaign.js:', adminToken ? 'PRESENTE' : 'AUSENTE');
 
 function authFetch(url, options = {}) {
   const headers = options.headers || {};
-  headers['Authorization'] = `Bearer ${adminToken}`;
+  if (adminToken) {
+    headers['Authorization'] = `Bearer ${adminToken}`;
+  }
   return fetch(url, { ...options, headers });
 }
 
@@ -12,9 +15,11 @@ function getAcompanheMode() {
 }
 
 function logout() {
+  console.log('[AUTH] Logout chamado de campaign');
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminUser');
-  window.location.href = '/login.html';
+  const workspaceUrl = window.WORKSPACE_CONFIG?.WORKSPACE_URL || window.location.origin.replace('backend', 'workspace');
+  window.location.href = `${workspaceUrl}/login.html`;
 }
 
 // Dialog/feedback helpers (admin-wide)
