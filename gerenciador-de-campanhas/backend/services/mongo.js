@@ -38,9 +38,6 @@ async function getDb() {
       maxPoolSize: 10,
       minPoolSize: 2,
       maxIdleTimeMS: 60000,
-      // Keep-alive para detectar conexões mortas
-      keepAlive: true,
-      keepAliveInitialDelay: 30000,
       // Retry automático de writes
       retryWrites: true,
       retryReads: true,
