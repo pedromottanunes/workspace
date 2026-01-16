@@ -11,6 +11,7 @@ const defaultData = require('./data/app-data.json');
 const DataStore = require('./storage/dataStore');
 const GoogleAuthService = require('./services/googleAuth');
 const buildApiRouter = require('./routes');
+const mongoClient = require('./services/mongoClient');
 
 async function bootstrap() {
   const app = express();
@@ -21,6 +22,16 @@ async function bootstrap() {
   await store.ensureReady();
 
   const googleAuthService = new GoogleAuthService(store);
+  
+  // Inicializar MongoDB no startup
+  console.log('[Startup] Inicializando MongoDB...');
+  try {
+    await mongoClient.getDb();
+    console.log('[Startup] ✅ MongoDB pronto');
+  } catch (error) {
+    console.error('[Startup] ⚠️ MongoDB não conectou no startup:', error.message);
+    console.error('[Startup] ⚠️ Servidor vai iniciar mas MongoDB pode estar indisponível');
+  }
 
   app.use(morgan('dev'));
   app.use(compression());
@@ -104,13 +115,25 @@ async function bootstrap() {
   app.use(express.static(staticRoot, utf8StaticOptions));
 
   // Health check endpoint para Render (DEVE vir antes do redirect)
-  app.get('/health', (req, res) => {
-    res.status(200).json({ 
+  app.get('/health', async (req, res) => {
+    const health = {
       status: 'ok', 
       service: 'gerador-de-orcamentos',
       timestamp: new Date().toISOString(),
-      uptime: process.uptime()
-    });
+      uptime: process.uptime(),
+      mongodb: 'unknown'
+    };
+    
+    // Verificar MongoDB
+    try {
+      await mongoClient.getDb();
+      health.mongodb = 'connected';
+    } catch (error) {
+      health.mongodb = 'disconnected';
+      health.mongoError = error.message;
+    }
+    
+    res.status(200).json(health);
   });
 
   app.get('/', (req, res) => {
