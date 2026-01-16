@@ -77,11 +77,130 @@ module.exports = function buildSlidesRouter(store, googleAuthService) {
   });
 
   async function handleOAuthCallback(req, res) {
+    console.log('[OAuth Callback] Recebendo callback do Google');
+    
     try {
-      await googleAuthService.handleCallback(req.query);
-      res.send('<h2>Autorização concluída. Você pode fechar esta janela.</h2>');
+      // Timeout de 25 segundos para evitar que fique travado
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout na autorização')), 25000)
+      );
+      
+      const authPromise = googleAuthService.handleCallback(req.query);
+      
+      await Promise.race([authPromise, timeoutPromise]);
+      
+      console.log('[OAuth Callback] ✅ Autorização concluída');
+      
+      // HTML com auto-close e feedback visual
+      res.send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Autorização Concluída</title>
+          <style>
+            body { 
+              font-family: system-ui, -apple-system, sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+            }
+            .container {
+              text-align: center;
+              padding: 40px;
+              background: rgba(255,255,255,0.1);
+              border-radius: 20px;
+              backdrop-filter: blur(10px);
+            }
+            h1 { margin: 0 0 20px 0; font-size: 32px; }
+            p { margin: 10px 0; opacity: 0.9; }
+            .success { font-size: 64px; margin-bottom: 20px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="success">✅</div>
+            <h1>Autorização Concluída!</h1>
+            <p>Conexão com Google estabelecida com sucesso.</p>
+            <p>Esta janela será fechada automaticamente...</p>
+          </div>
+          <script>
+            setTimeout(() => {
+              window.close();
+              // Se não conseguir fechar, redireciona
+              setTimeout(() => {
+                window.location.href = '/app/settings/';
+              }, 1000);
+            }, 2000);
+          </script>
+        </body>
+        </html>
+      `);
+      
     } catch (error) {
-      res.status(400).send(`<h2>Erro na autorizaÇõÇœo: ${error.message}</h2>`);
+      console.error('[OAuth Callback] ❌ Erro:', error.message);
+      
+      res.status(400).send(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Erro na Autorização</title>
+          <style>
+            body { 
+              font-family: system-ui, -apple-system, sans-serif;
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              margin: 0;
+              background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+              color: white;
+            }
+            .container {
+              text-align: center;
+              padding: 40px;
+              background: rgba(255,255,255,0.1);
+              border-radius: 20px;
+              backdrop-filter: blur(10px);
+              max-width: 500px;
+            }
+            h1 { margin: 0 0 20px 0; font-size: 32px; }
+            p { margin: 10px 0; opacity: 0.9; }
+            .error { font-size: 64px; margin-bottom: 20px; }
+            .error-msg { 
+              background: rgba(0,0,0,0.2);
+              padding: 15px;
+              border-radius: 10px;
+              margin-top: 20px;
+              font-family: monospace;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="error">❌</div>
+            <h1>Erro na Autorização</h1>
+            <p>Não foi possível completar a autorização com o Google.</p>
+            <div class="error-msg">${error.message}</div>
+            <p style="margin-top: 20px;">Tente novamente nas configurações.</p>
+          </div>
+          <script>
+            setTimeout(() => {
+              window.close();
+              setTimeout(() => {
+                window.location.href = '/app/settings/';
+              }, 1000);
+            }, 5000);
+          </script>
+        </body>
+        </html>
+      `);
     }
   }
 
