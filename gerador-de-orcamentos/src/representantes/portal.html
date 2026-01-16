@@ -169,16 +169,9 @@
     const message = document.getElementById('message');
 
     function getApiBase() {
-      // Em produção (Render), usar origem sem porta
-      if (window.location.hostname.includes('onrender.com')) {
-        return window.location.origin;
-      }
-      // Em desenvolvimento local, usar porta 5173
-      if (window.location.port === '5173') {
-        return window.location.origin;
-      }
-      // Fallback para desenvolvimento local
-      return 'http://localhost:5173';
+      // SEMPRE usar a origem atual do portal (mesmo servidor que serviu o HTML)
+      // Isso garante que o fetch sempre vá para o servidor correto
+      return window.location.origin;
     }
 
     function showMsg(text, ok = false) {
@@ -189,23 +182,33 @@
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       message.className = 'msg';
+      
+      const apiUrl = `${getApiBase()}/api/representatives/requests`;
+      console.log('[Portal Representante] Enviando para:', apiUrl);
+      
       try {
         const data = Object.fromEntries(new FormData(form).entries());
-        const res = await fetch(`${getApiBase()}/api/representatives/requests`, {
+        const res = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
+        
+        console.log('[Portal Representante] Status resposta:', res.status);
+        
         const body = await res.json().catch(() => ({}));
         if (!res.ok) {
+          console.error('[Portal Representante] Erro:', body);
           showMsg(body.error || 'Falha ao enviar. Tente novamente.', false);
           return;
         }
+        
         form.reset();
         showMsg('Enviado com sucesso! O time comercial vai cuidar do orçamento.', true);
+        console.log('[Portal Representante] ✅ Enviado com sucesso');
       } catch (err) {
-        console.error(err);
-        showMsg('Erro de conexão. Verifique sua rede.', false);
+        console.error('[Portal Representante] Erro de rede:', err);
+        showMsg('Erro de conexão. Verifique sua rede e tente novamente.', false);
       }
     });
   </script>

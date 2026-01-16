@@ -76,11 +76,19 @@ module.exports = function buildRepresentativesRouter(store) {
     } = req.body || {};
 
     if (!representanteNome || !representanteEmail) {
+      console.warn('[Representatives] Validação falhou: nome/email faltando');
       return res.status(400).json({ error: 'Informe nome e e-mail do representante.' });
     }
     if (!anunciante && !empresa) {
+      console.warn('[Representatives] Validação falhou: anunciante/empresa faltando');
       return res.status(400).json({ error: 'Informe o anunciante ou empresa.' });
     }
+
+    console.log('[Representatives] Criando nova solicitação:', {
+      representante: representanteNome,
+      email: representanteEmail,
+      empresa: empresa || anunciante
+    });
 
     try {
       const entry = {
@@ -101,10 +109,25 @@ module.exports = function buildRepresentativesRouter(store) {
       };
 
       const created = await mongoClient.createRepresentativeRequest(entry);
-      res.status(201).json(created);
+      console.log('[Representatives] ✅ Solicitação criada com sucesso:', saved.id);
+      res.status(201).json(saved);
     } catch (err) {
-      console.error('Erro ao criar solicitação:', err);
-      res.status(500).json({ error: 'Erro ao criar solicitação' });
+      console.error('[Representatives] ❌ Erro ao criar solicitação:', {
+        error: err.message,
+        stack: err.stack,
+        dados: { representanteNome, representanteEmail }
+      });
+      
+      // Retornar erro mais descritivo
+      if (err.message.includes('MongoDB')) {
+        return res.status(503).json({ 
+          error: 'Banco de dados temporiamente indisponível. Tente novamente em alguns segundos.' 
+        });
+      }
+      
+      res.status(500).json({ 
+        error: 'Erro ao criar solicitação. Por favor, tente novamente.' 
+      });
     }
   });
 

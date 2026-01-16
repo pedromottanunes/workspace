@@ -43,7 +43,7 @@ services:
     rootDir: gerador-de-orcamentos
     buildCommand: npm install
     startCommand: node server/index.js
-    healthCheckPath: /
+    healthCheckPath: /health
     envVars:
       - key: NODE_ENV
         value: production

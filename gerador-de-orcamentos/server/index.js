@@ -1,5 +1,6 @@
 const path = require('path');
 const express = require('express');
+const cors = require('cors');
 const morgan = require('morgan');
 const compression = require('compression');
 const dotenv = require('dotenv');
@@ -23,6 +24,45 @@ async function bootstrap() {
 
   app.use(morgan('dev'));
   app.use(compression());
+  
+  // ========== CONFIGURAÇÃO CORS ==========
+  // Lista de origens permitidas
+  const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:4173',
+    'http://127.0.0.1:5173',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:4173',
+    'https://oddrive-workspace.onrender.com',
+    'https://oddrive-backend.onrender.com',
+    'https://oddrive-gerador.onrender.com',
+  ];
+  
+  // Adicionar origens customizadas do .env
+  if (process.env.CORS_ORIGINS) {
+    const customOrigins = process.env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean);
+    allowedOrigins.push(...customOrigins);
+  }
+  
+  app.use(cors({
+    origin: function(origin, callback) {
+      // Permitir requests sem origin (ex: Postman, curl, same-origin)
+      if (!origin) return callback(null, true);
+      
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.warn('[CORS] Origem bloqueada:', origin);
+        callback(new Error('Origem não permitida pelo CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    maxAge: 86400, // 24h cache de preflight
+  }));
+  
   // Aceitar payloads grandes (imagens em base64, planilhas etc.)
   app.use(express.json({ limit: '150mb' }));
   app.use(express.urlencoded({ extended: true, limit: '150mb' }));
@@ -63,12 +103,26 @@ async function bootstrap() {
   const staticRoot = path.join(__dirname, '..', 'src');
   app.use(express.static(staticRoot, utf8StaticOptions));
 
+  // Health check endpoint para Render (DEVE vir antes do redirect)
+  app.get('/health', (req, res) => {
+    res.status(200).json({ 
+      status: 'ok', 
+      service: 'gerador-de-orcamentos',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime()
+    });
+  });
+
   app.get('/', (req, res) => {
     res.redirect('/app/');
   });
 
   app.listen(port, () => {
-    console.log(`Servidor iniciado em http://127.0.0.1:${port}`);
+    console.log(`========================================`);
+    console.log(`🚀 Gerador de Orçamentos`);
+    console.log(`📍 Servidor: http://127.0.0.1:${port}`);
+    console.log(`✅ Health: http://127.0.0.1:${port}/health`);
+    console.log(`========================================`);
   });
 }
 

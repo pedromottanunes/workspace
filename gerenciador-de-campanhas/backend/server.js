@@ -227,18 +227,25 @@ const scheme = httpsOptions ? 'https' : 'http';
 
 // Bind explicitly to 0.0.0.0 for cloud platforms (Render expects the process to listen externally)
 server.listen(PORT, HOST, () => {
-  console.log(`Admin rodando em ${scheme}://0.0.0.0:${PORT} (listening)`);
+  console.log(`========================================`);
+  console.log(`🚀 Gerenciador de Campanhas`);
+  console.log(`📍 Servidor: ${scheme}://0.0.0.0:${PORT}`);
+  console.log(`✅ Health: ${scheme}://0.0.0.0:${PORT}/api/session/health`);
+  console.log(`🌐 Ambiente: ${isProd ? 'PRODUÇÃO' : 'DESENVOLVIMENTO'}`);
+  console.log(`========================================`);
+  
   // Auto-ensure DB schema on startup (delegado ao service `db.js`)
   (async () => {
     try {
       const { ensureDatabaseSchema } = await import('./services/db.js');
       const out = await ensureDatabaseSchema();
-      if (out?.created) console.log('[db] Schema criado/garantido.');
-      else console.log('[db] Schema OK.');
+      if (out?.created) console.log('[DB] ✅ Schema criado/garantido.');
+      else console.log('[DB] ✅ Schema OK.');
     } catch (e) {
-      console.warn('[db] Falha ao garantir schema:', e?.message || e);
+      console.warn('[DB] ⚠️ Falha ao garantir schema:', e?.message || e);
     }
   })();
+  
   try {
     const nets = os.networkInterfaces();
     const addrs = Object.values(nets)
@@ -247,11 +254,11 @@ server.listen(PORT, HOST, () => {
       .filter(n => (n.family === 'IPv4' || n.family === 4) && !n.internal)
       .map(n => n.address);
     if (addrs.length) {
-      console.log('Acesse pela rede local:');
+      console.log('🌍 Acesse pela rede local:');
       for (const ip of addrs) {
-        console.log(`- Admin:    ${scheme}://${ip}:${PORT}/`);
-        console.log(`- Motorista: ${scheme}://${ip}:${PORT}/driver.html`);
-        console.log(`- Grafica:   ${scheme}://${ip}:${PORT}/graphic.html`);
+        console.log(`   Admin:    ${scheme}://${ip}:${PORT}/`);
+        console.log(`   Motorista: ${scheme}://${ip}:${PORT}/driver.html`);
+        console.log(`   Grafica:   ${scheme}://${ip}:${PORT}/graphic.html`);
       }
     }
   } catch (e) {
