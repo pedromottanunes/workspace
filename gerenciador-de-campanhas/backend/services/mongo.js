@@ -23,25 +23,36 @@ const REPRESENTATIVE_REQUESTS_COLLECTION = 'representative_requests';
 let client = null;
 let db = null;
 let bucket = null;
+let isConnecting = false;
 
 async function getDb() {
-  if (!db) {
+  // Se já está conectado, retorna
+  if (db) return db;
+  
+  // Se está conectando, aguarda
+  if (isConnecting) {
+    await new Promise(resolve => setTimeout(resolve, 100));
+    return getDb();
+  }
+  
+  isConnecting = true;
+  
+  try {
     if (!MONGO_URI) {
       throw new Error('MongoDB não configurado (defina MONGO_URI no .env)');
     }
+    
     const mongoOptions = {
-      // Timeouts aumentados para lidar com cold starts e conexões lentas
-      serverSelectionTimeoutMS: 30000,  // 30s (era 10s)
-      socketTimeoutMS: 60000,            // 60s (era 30s)
-      connectTimeoutMS: 30000,           // 30s (era 10s)
-      // Connection pooling para reutilizar conexões
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 30000,
       maxPoolSize: 10,
       minPoolSize: 2,
       maxIdleTimeMS: 60000,
-      // Retry automático de writes
       retryWrites: true,
       retryReads: true,
     };
+    
     if (MONGO_TLS_ALLOW_INVALID_CERTS) {
       mongoOptions.tlsAllowInvalidCertificates = true;
       mongoOptions.tlsAllowInvalidHostnames = true;
@@ -51,28 +62,43 @@ async function getDb() {
     }
     
     console.log('[MongoDB] Conectando ao banco de dados...');
-    try {
-      client = new MongoClient(MONGO_URI, mongoOptions);
-      await client.connect();
-      db = client.db(MONGO_DB_NAME);
-      console.log('[MongoDB] ✅ Conectado com sucesso ao banco:', MONGO_DB_NAME);
-      
-      // Event listeners para monitorar conexão
-      client.on('error', (err) => {
-        console.error('[MongoDB] ❌ Erro na conexão:', err.message);
-      });
-      client.on('close', () => {
-        console.warn('[MongoDB] ⚠️ Conexão fechada');
-      });
-      client.on('reconnect', () => {
-        console.log('[MongoDB] 🔄 Reconectado');
-      });
-    } catch (error) {
-      console.error('[MongoDB] ❌ Falha ao conectar:', error.message);
-      throw error;
+    
+    // Retry logic - tenta 3 vezes
+    let lastError;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        client = new MongoClient(MONGO_URI, mongoOptions);
+        await client.connect();
+        db = client.db(MONGO_DB_NAME);
+        console.log('[MongoDB] ✅ Conectado com sucesso ao banco:', MONGO_DB_NAME);
+        
+        // Event listeners
+        client.on('error', (err) => {
+          console.error('[MongoDB] ❌ Erro na conexão:', err.message);
+          db = null;
+        });
+        client.on('close', () => {
+          console.warn('[MongoDB] ⚠️ Conexão fechada');
+          db = null;
+        });
+        
+        isConnecting = false;
+        return db;
+        
+      } catch (error) {
+        lastError = error;
+        console.error(`[MongoDB] Tentativa ${attempt}/3 falhou:`, error.message);
+        if (attempt < 3) {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        }
+      }
     }
+    
+    throw lastError;
+    
+  } finally {
+    isConnecting = false;
   }
-  return db;
 }
 
 export { getDb };
