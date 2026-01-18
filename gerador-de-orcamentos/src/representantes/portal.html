@@ -124,25 +124,25 @@
         <div class="grid-small">
           <div>
             <label for="numeroCarros">Número de carros</label>
-            <input id="numeroCarros" name="numeroCarros" type="number" min="1" placeholder="Ex: 10" autocomplete="off" inputmode="numeric">
+            <input id="numeroCarros" name="quantity-vehicles" type="number" min="1" placeholder="Ex: 10" autocomplete="off" autocomplete="new-password" inputmode="numeric" data-form-type="other">
           </div>
           <div>
             <label for="tempoCampanhaDias">Duração (dias)</label>
-            <input id="tempoCampanhaDias" name="tempoCampanhaDias" type="number" min="1" placeholder="Ex: 30" autocomplete="off" inputmode="numeric">
+            <input id="tempoCampanhaDias" name="campaign-duration" type="number" min="1" placeholder="Ex: 30" autocomplete="off" autocomplete="new-password" inputmode="numeric" data-form-type="other">
           </div>
         </div>
 
         <div class="grid-small">
           <div>
             <label for="dataInicio">Data de início</label>
-            <input id="dataInicio" name="dataInicio" type="date">
+            <input id="dataInicio" name="start-date" type="date" autocomplete="off">
           </div>
         </div>
 
         <div class="grid-small">
           <div>
             <label for="validadeDias">Validade (dias)</label>
-            <input id="validadeDias" name="validadeDias" type="number" min="1" placeholder="Ex: 15" autocomplete="off" inputmode="numeric">
+            <input id="validadeDias" name="validity-days" type="number" min="1" placeholder="Ex: 15" autocomplete="off" autocomplete="new-password" inputmode="numeric" data-form-type="other">
           </div>
         </div>
 
@@ -183,7 +183,22 @@
       console.log('[Portal Representante] Enviando para:', apiUrl);
       
       try {
-        const data = Object.fromEntries(new FormData(form).entries());
+        const formData = new FormData(form);
+        // Mapear nomes dos campos para o formato esperado pelo backend
+        const data = {
+          representanteNome: formData.get('representanteNome'),
+          representanteEmail: formData.get('representanteEmail'),
+          representanteTelefone: formData.get('representanteTelefone'),
+          anunciante: formData.get('anunciante'),
+          empresa: formData.get('empresa'),
+          pracas: formData.get('pracas'),
+          numeroCarros: formData.get('quantity-vehicles'),
+          tempoCampanhaDias: formData.get('campaign-duration'),
+          dataInicio: formData.get('start-date'),
+          validadeDias: formData.get('validity-days'),
+          observacoes: formData.get('observacoes')
+        };
+        
         const res = await fetch(apiUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
