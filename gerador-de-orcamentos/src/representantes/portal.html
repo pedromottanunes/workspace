@@ -96,11 +96,11 @@
       <form id="repForm" class="grid">
         <div>
           <label for="representanteNome">Seu nome</label>
-          <input id="representanteNome" name="representanteNome" required placeholder="Nome completo">
+          <input id="representanteNome" name="representanteNome" placeholder="Nome completo">
         </div>
         <div>
           <label for="representanteEmail">Seu e-mail</label>
-          <input id="representanteEmail" name="representanteEmail" type="email" required placeholder="email@exemplo.com">
+          <input id="representanteEmail" name="representanteEmail" type="email" placeholder="email@exemplo.com">
         </div>
 
         <div>
@@ -109,7 +109,7 @@
         </div>
         <div>
           <label for="anunciante">Anunciante</label>
-          <input id="anunciante" name="anunciante" required placeholder="Nome do anunciante">
+          <input id="anunciante" name="anunciante" placeholder="Nome do anunciante">
         </div>
 
         <div>
@@ -124,11 +124,11 @@
         <div class="grid-small">
           <div>
             <label for="numeroCarros">Número de carros</label>
-            <input id="numeroCarros" name="numeroCarros" type="number" min="1" placeholder="Ex: 10" autocomplete="off">
+            <input id="numeroCarros" name="numeroCarros" type="number" min="1" placeholder="Ex: 10" autocomplete="off" inputmode="numeric">
           </div>
           <div>
             <label for="tempoCampanhaDias">Duração (dias)</label>
-            <input id="tempoCampanhaDias" name="tempoCampanhaDias" type="number" min="1" placeholder="Ex: 30" autocomplete="off">
+            <input id="tempoCampanhaDias" name="tempoCampanhaDias" type="number" min="1" placeholder="Ex: 30" autocomplete="off" inputmode="numeric">
           </div>
         </div>
 
@@ -137,16 +137,12 @@
             <label for="dataInicio">Data de início</label>
             <input id="dataInicio" name="dataInicio" type="date">
           </div>
-          <div>
-            <label for="dataFim">Data de término</label>
-            <input id="dataFim" name="dataFim" type="date">
-          </div>
         </div>
 
         <div class="grid-small">
           <div>
             <label for="validadeDias">Validade (dias)</label>
-            <input id="validadeDias" name="validadeDias" type="number" min="1" placeholder="Ex: 15" autocomplete="off">
+            <input id="validadeDias" name="validadeDias" type="number" min="1" placeholder="Ex: 15" autocomplete="off" inputmode="numeric">
           </div>
         </div>
 

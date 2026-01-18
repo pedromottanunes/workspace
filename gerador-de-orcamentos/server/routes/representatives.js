@@ -28,7 +28,6 @@ function buildProposalFromRequest(request) {
       tempoCampanhaDias: Number(request.tempoCampanhaDias) || null,
       tempoCampanha: request.tempoCampanhaDias ? `${request.tempoCampanhaDias} dias` : '',
       dataInicio: sanitizeText(request.dataInicio),
-      dataFim: sanitizeText(request.dataFim),
       validadeDias: Number(request.validadeDias) || null,
       observacoes: sanitizeText(request.observacoes)
     }
@@ -70,24 +69,20 @@ module.exports = function buildRepresentativesRouter(store) {
       numeroCarros,
       tempoCampanhaDias,
       dataInicio,
-      dataFim,
       validadeDias,
       observacoes
     } = req.body || {};
 
-    if (!representanteNome || !representanteEmail) {
-      console.warn('[Representatives] Validação falhou: nome/email faltando');
-      return res.status(400).json({ error: 'Informe nome e e-mail do representante.' });
-    }
-    if (!anunciante && !empresa) {
-      console.warn('[Representatives] Validação falhou: anunciante/empresa faltando');
-      return res.status(400).json({ error: 'Informe o anunciante ou empresa.' });
+    // Validação mínima: apenas nome OU email
+    if (!representanteNome && !representanteEmail) {
+      console.warn('[Representatives] Validação falhou: nenhuma identificação fornecida');
+      return res.status(400).json({ error: 'Informe pelo menos seu nome ou e-mail.' });
     }
 
     console.log('[Representatives] Criando nova solicitação:', {
-      representante: representanteNome,
-      email: representanteEmail,
-      empresa: empresa || anunciante
+      representante: representanteNome || 'Não informado',
+      email: representanteEmail || 'Não informado',
+      empresa: empresa || anunciante || 'Não informado'
     });
 
     try {
@@ -103,7 +98,6 @@ module.exports = function buildRepresentativesRouter(store) {
         numeroCarros: Number(numeroCarros) || null,
         tempoCampanhaDias: Number(tempoCampanhaDias) || null,
         dataInicio: sanitizeText(dataInicio),
-        dataFim: sanitizeText(dataFim),
         validadeDias: Number(validadeDias) || null,
         observacoes: sanitizeText(observacoes || '')
       };
