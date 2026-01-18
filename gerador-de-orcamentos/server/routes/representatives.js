@@ -109,8 +109,8 @@ module.exports = function buildRepresentativesRouter(store) {
       };
 
       const created = await mongoClient.createRepresentativeRequest(entry);
-      console.log('[Representatives] ✅ Solicitação criada com sucesso:', saved.id);
-      res.status(201).json(saved);
+      console.log('[Representatives] ✅ Solicitação criada com sucesso:', created.id);
+      res.status(201).json(created);
     } catch (err) {
       console.error('[Representatives] ❌ Erro ao criar solicitação:', {
         error: err.message,
@@ -121,7 +121,7 @@ module.exports = function buildRepresentativesRouter(store) {
       // Retornar erro mais descritivo
       if (err.message.includes('MongoDB')) {
         return res.status(503).json({ 
-          error: 'Banco de dados temporiamente indisponível. Tente novamente em alguns segundos.' 
+          error: 'Banco de dados temporariamente indisponível. Tente novamente em alguns segundos.' 
         });
       }
       
