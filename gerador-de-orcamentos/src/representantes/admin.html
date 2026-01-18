@@ -133,12 +133,14 @@
       }
       const rows = list.map(item => {
         const created = item.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '--';
+        const obs = item.observacoes ? `<div style="max-width:200px;max-height:60px;overflow:auto;font-size:12px;line-height:1.4;">${item.observacoes}</div>` : '<span style="color:#999;">--</span>';
         return `
           <tr>
             <td><strong>${item.anunciante || item.empresa || 'Sem nome'}</strong><br><small>${item.pracas || ''}</small></td>
             <td>${item.representanteNome}<br><small>${item.representanteEmail}</small></td>
             <td>${item.numeroCarros || '--'}</td>
             <td>${item.tempoCampanhaDias || '--'}</td>
+            <td>${obs}</td>
             <td>${badge(item.status)}</td>
             <td>${created}</td>
             <td>
@@ -162,6 +164,7 @@
                 <th>Representante</th>
                 <th>Carros</th>
                 <th>Dias</th>
+                <th>Observações</th>
                 <th>Status</th>
                 <th>Recebido</th>
                 <th>Ações</th>
