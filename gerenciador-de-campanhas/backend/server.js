@@ -54,7 +54,7 @@ const helmetOptions = {
       fontSrc: ["'self'", 'https:'],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
+      frameAncestors: ["'self'", 'https://oddrive-workspace.onrender.com', 'http://localhost:*', 'http://127.0.0.1:*'],
       upgradeInsecureRequests: null, // explicitly disable upgrade to HTTPS in dev
     },
   },
