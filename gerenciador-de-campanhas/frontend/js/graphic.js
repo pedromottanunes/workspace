@@ -339,11 +339,17 @@ function buildSimplePhotoUI(stepId, onStateChange = () => {}) {
       showMobileOnlyWarning('Selecione um motorista antes de capturar a foto.');
       return;
     }
+    
+    // BLOQUEIA DESKTOP: Impede envio de fotos salvas - apenas câmera ao vivo no celular
+    if (!isMobileDevice()) {
+      showMobileOnlyWarning('⚠️ Esta função só está disponível no celular. Acesse pelo dispositivo móvel para tirar fotos em tempo real.');
+      return;
+    }
+    
     try {
       const canMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-      if (!isMobileDevice() || !canMedia || !isSecure()) {
-        file.click();
-        showMobileOnlyWarning('Modo desenvolvimento: abrindo seletor de imagem.');
+      if (!canMedia || !isSecure()) {
+        showMobileOnlyWarning('⚠️ Requer HTTPS para abrir a câmera. Verifique a conexão.');
         return;
       }
       clearWarning();
