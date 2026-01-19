@@ -138,10 +138,16 @@
           loadModule(`${generatorBase}/`);
           break;
         case 'solicitacoes':
-          loadModule(`${generatorBase}/src/representantes/admin.html`);
+          loadModule(`${generatorBase}/representantes/admin.html`);
           break;
         case 'portal-rep':
-          loadModule(`${generatorBase}/src/representantes/portal.html`);
+          loadModule(`${generatorBase}/representantes/portal.html`);
+          break;
+        case 'motorista':
+          loadModule(`${adminBase}/driver.html`);
+          break;
+        case 'grafica':
+          loadModule(`${adminBase}/graphic.html`);
           break;
         case 'configuracoes':
           loadModule(`${generatorBase}/app/settings/index.html`);
