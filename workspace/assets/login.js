@@ -101,4 +101,3 @@ loginForm?.addEventListener('submit', handleLogin);
 
 // Tenta auto-login ao carregar a página
 tryAutoLogin();
-tryAutoLogin();

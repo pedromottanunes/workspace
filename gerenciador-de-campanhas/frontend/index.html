@@ -19,6 +19,27 @@
       } else {
         const existingToken = localStorage.getItem('adminToken');
         console.log('[AUTH] Sem token na URL. Token no localStorage:', existingToken ? 'PRESENTE' : 'AUSENTE');
+        
+        // Se não tem token, redireciona para workspace/login
+        if (!existingToken) {
+          console.log('[AUTH] Sem token - redirecionando para workspace login');
+          // Tenta usar configuração, senão faz fallback inteligente
+          let workspaceUrl = window.location.origin;
+          if (window.WORKSPACE_CONFIG && window.WORKSPACE_CONFIG.WORKSPACE_URL) {
+            workspaceUrl = window.WORKSPACE_CONFIG.WORKSPACE_URL;
+          } else {
+            // Fallback: se está em localhost:5174, vai para localhost (porta 80/padrão)
+            // se está em onrender.com/backend, vai para /workspace
+            const isProd = window.location.hostname.includes('onrender.com');
+            if (isProd) {
+              workspaceUrl = window.location.origin.replace('backend', 'workspace');
+            } else {
+              // Local: remove porta
+              workspaceUrl = window.location.protocol + '//' + window.location.hostname;
+            }
+          }
+          window.location.href = workspaceUrl + '/login.html';
+        }
       }
     })();
   </script>
