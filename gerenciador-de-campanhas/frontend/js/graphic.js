@@ -258,20 +258,8 @@ function buildSimplePhotoUI(stepId, onStateChange = () => {}) {
   btnRetake.disabled = true;
   controls.append(btnSnap, btnRetake);
 
-  const file = document.createElement('input');
-  file.type = 'file';
-  file.accept = 'image/*';
-  try { file.capture = 'environment'; } catch {}
-  file.style = 'position:fixed;left:-10000px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
-  document.body.appendChild(file);
-
-  file.onchange = async () => {
-    const f = file.files && file.files[0];
-    if (!f) return;
-    const reader = new FileReader();
-    reader.onload = async () => { await compressAndPreview(reader.result); };
-    reader.readAsDataURL(f);
-  };
+  // REMOVIDO input[type=file]: Proíbe upload de fotos salvas
+  // Apenas câmera ao vivo é permitida para garantir autenticidade
 
   const videoWrap = document.createElement('div');
   videoWrap.style = 'position:relative;';
