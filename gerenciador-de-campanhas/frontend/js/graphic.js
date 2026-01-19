@@ -72,8 +72,17 @@ function getApiBase() {
   if (window.location.port === '5174') {
     return window.location.origin;
   }
-  // Caso contrário, constrói a URL do backend
+  
+  // Em produção (Render), usa apenas o hostname sem porta
   const { protocol, hostname } = window.location;
+  const isProd = hostname.includes('onrender.com') || hostname.includes('render.com');
+  
+  if (isProd) {
+    // Em produção, usa HTTPS sem porta
+    return `https://${hostname.replace('workspace', 'backend')}`;
+  }
+  
+  // Em desenvolvimento local, usa a porta
   const backendPort = '5174';
   const proto = protocol === 'https:' ? 'https:' : 'http:';
   return `${proto}//${hostname}:${backendPort}`;
