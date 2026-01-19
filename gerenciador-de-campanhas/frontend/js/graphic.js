@@ -492,7 +492,7 @@ function renderFlow(flow = currentFlow) {
   driverInfo.textContent = driver ? `Motorista selecionado: ${driver.name}` : '';
   body.appendChild(driverInfo);
 
-  const completedState = driverCompletion.get(selectedDriverId);
+  // Usar completedState já declarado acima
   const lockUntil = completedState?.cooldownUntil && Number(completedState.cooldownUntil) > Date.now()
     ? Number(completedState.cooldownUntil)
     : null;
