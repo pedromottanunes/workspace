@@ -5,6 +5,16 @@
     return;
   }
 
+  // Listener para mensagens de iframes (ex: logout do gerenciador)
+  window.addEventListener('message', (event) => {
+    if (event.data && event.data.type === 'LOGOUT_REQUEST') {
+      console.log('[WORKSPACE] Logout solicitado por iframe');
+      localStorage.removeItem('adminToken');
+      localStorage.removeItem('adminUser');
+      window.location.href = '/login.html';
+    }
+  });
+
   // Usa configuração centralizada (config.js)
   const adminBase = window.WORKSPACE_CONFIG 
     ? window.WORKSPACE_CONFIG.getBackendUrl() 

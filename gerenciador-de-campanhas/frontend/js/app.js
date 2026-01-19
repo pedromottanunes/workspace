@@ -30,9 +30,23 @@ function logout() {
   console.log('[AUTH] Logout chamado - limpando tokens e redirecionando');
   localStorage.removeItem('adminToken');
   localStorage.removeItem('adminUser');
-  // Redireciona para o workspace unificado (URL completa em produção)
-  const workspaceUrl = window.WORKSPACE_CONFIG?.WORKSPACE_URL || window.location.origin.replace('backend', 'workspace');
-  window.location.href = `${workspaceUrl}/login.html`;
+  
+  // Detecta se está dentro de um iframe
+  const isInIframe = window.self !== window.top;
+  
+  if (isInIframe) {
+    // Se estiver em iframe, tenta comunicar com o parent para fazer logout
+    try {
+      window.parent.postMessage({ type: 'LOGOUT_REQUEST' }, '*');
+      console.log('[AUTH] Solicitação de logout enviada para parent (workspace)');
+    } catch (e) {
+      console.error('[AUTH] Não foi possível comunicar com parent:', e);
+    }
+  } else {
+    // Se não estiver em iframe, redireciona normalmente
+    const workspaceUrl = window.WORKSPACE_CONFIG?.WORKSPACE_URL || window.location.origin.replace('backend', 'workspace');
+    window.location.href = `${workspaceUrl}/login.html`;
+  }
 }
 
 // Feedback helpers (shared)
