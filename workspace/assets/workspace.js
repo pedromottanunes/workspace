@@ -72,19 +72,13 @@
         card.appendChild(soon);
       }
 
-      const header = document.createElement('div');
-      header.className = 'card-head';
-
-      const title = document.createElement('h3');
-      title.textContent = app.name;
-      header.appendChild(title);
-
-      card.appendChild(header);
-
-      const desc = document.createElement('p');
-      desc.className = 'desc';
-      desc.textContent = app.description;
-      card.appendChild(desc);
+      // Renderiza descrição apenas se existir
+      if (app.description) {
+        const desc = document.createElement('p');
+        desc.className = 'desc';
+        desc.textContent = app.description;
+        card.appendChild(desc);
+      }
 
       const actions = document.createElement('div');
       actions.className = 'actions';
