@@ -177,6 +177,23 @@ main {
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
+  min-height: 280px;
+}
+
+/* Overlay para garantir legibilidade do texto sobre background image */
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.98) 100%);
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Garante que o conteúdo fique sobre o overlay */
+.card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .card:hover {

@@ -26,22 +26,25 @@
   const apps = [
     {
       name: 'Gerenciador de Campanhas',
-      description: 'Painel interno para administrar campanhas e portais públicos para motoristas e gráficas.',
+      description: '',
+      backgroundImage: 'assets/images/bg-gerenciador.jpg',
       links: [
-        { label: 'Abrir painel admin', href: `${adminBase}/?token=${encodeURIComponent(token)}`, primary: true }
+        { label: 'Abrir painel do administrador', href: `${adminBase}/?token=${encodeURIComponent(token)}`, primary: true }
       ]
     },
     {
       name: 'Gerador de Orçamentos',
-      description: 'Criação de propostas com Google Slides e exportação para PDF.',
+      description: '',
+      backgroundImage: 'assets/images/bg-gerador.jpg',
       links: [
-        { label: 'Abrir gerador', href: `${generatorBase}/`, primary: true },
+        { label: 'Abrir gerador de orçamentos', href: `${generatorBase}/`, primary: true },
         { label: 'Configurações', href: `${generatorBase}/app/settings/index.html` }
       ]
     },
     {
       name: 'Novo módulo',
       description: 'Espaço reservado para futuros apps. Duplique este card e ajuste os links.',
+      backgroundImage: 'assets/images/bg-novo-modulo.jpg',
       comingSoon: true,
       links: []
     }
@@ -53,6 +56,15 @@
     apps.forEach((app) => {
       const card = document.createElement('article');
       card.className = 'card';
+      
+      // Adiciona background image se existir
+      if (app.backgroundImage) {
+        card.style.backgroundImage = `url('${app.backgroundImage}')`;
+        card.style.backgroundSize = 'cover';
+        card.style.backgroundPosition = 'center';
+        card.style.backgroundRepeat = 'no-repeat';
+      }
+      
       if (app.comingSoon) {
         const soon = document.createElement('div');
         soon.className = 'soon';
