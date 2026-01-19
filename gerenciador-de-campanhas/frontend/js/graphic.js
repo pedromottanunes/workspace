@@ -463,11 +463,22 @@ function renderFlow(flow = currentFlow) {
     try { window.scrollTo({ top: 0, behavior: currentStepIndex === 0 ? 'auto' : 'smooth' }); } catch {}
   });
   const completedState = driverCompletion.get(selectedDriverId);
-  if (completedState?.completed) {
+  
+  // Só bloqueia se completed E (verified OU locked)
+  // Quando admin clica "Liberar agora", verified fica false, permitindo novo envio
+  const lockUntil = completedState?.cooldownUntil && Number(completedState.cooldownUntil) > Date.now()
+    ? Number(completedState.cooldownUntil)
+    : null;
+  const shouldBlock = completedState?.completed && (completedState?.verified || completedState?.locked || lockUntil);
+  
+  if (shouldBlock) {
+    const unlockText = lockUntil 
+      ? new Date(lockUntil).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+      : null;
     stepsContainer.innerHTML = `
       <article class="step-item" style="text-align:center;">
         <h3 style="margin:0 0 6px;">Envios já registrados</h3>
-        <p class="small muted" style="margin:0;">Aguarde a revisão do administrador para este motorista.</p>
+        <p class="small muted" style="margin:0;">${unlockText ? `Aguarde até ${unlockText} ou até o admin liberar.` : 'Aguarde a revisão do administrador para este motorista.'}</p>
       </article>`;
     return;
   }
@@ -494,20 +505,6 @@ function renderFlow(flow = currentFlow) {
   const driver = drivers.find(d => d.id === selectedDriverId);
   driverInfo.textContent = driver ? `Motorista selecionado: ${driver.name}` : '';
   body.appendChild(driverInfo);
-
-  // Usar completedState já declarado acima
-  const lockUntil = completedState?.cooldownUntil && Number(completedState.cooldownUntil) > Date.now()
-    ? Number(completedState.cooldownUntil)
-    : null;
-  if (completedState?.locked || lockUntil) {
-    const unlockText = lockUntil ? new Date(lockUntil).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : null;
-    stepsContainer.innerHTML = `
-      <article class="step-item" style="text-align:center;">
-        <h3 style="margin:0 0 6px;">Envios já registrados</h3>
-        <p class="small muted" style="margin:0;">${unlockText ? `Aguarde até ${unlockText} ou até o admin liberar.` : 'Aguarde a revisão do administrador para este motorista.'}</p>
-      </article>`;
-    return;
-  }
 
   if (isPhotoStep(step)) {
     body.appendChild(buildSimplePhotoUI(step.id, () => refreshNextButtonState()));
