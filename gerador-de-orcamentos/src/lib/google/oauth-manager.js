@@ -10,7 +10,7 @@ const DEFAULT_SCOPES = [
   'https://www.googleapis.com/auth/drive'
 ];
 const DEFAULT_REDIRECT_PATH = '/api/slides/oauth/callback';
-const DEFAULT_REDIRECT_URI = `http://127.0.0.1:8080${DEFAULT_REDIRECT_PATH}`;
+const DEFAULT_REDIRECT_URI = `https://oddrive-gerador.onrender.com${DEFAULT_REDIRECT_PATH}`;
 
 class GoogleOAuthManager {
   constructor(store, configProvider = null) {

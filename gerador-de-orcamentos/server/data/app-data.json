@@ -34,7 +34,7 @@
     "assetsFolderId": "10_v5oRGmCu4CNHROE5jjt1MJtDmzymyd",
     "clientId": "1031439600498-aj9iipn5ueb0vtlo9blbrarmhv5fbvp0.apps.googleusercontent.com",
     "clientSecret": "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",
-    "redirectUri": "http://127.0.0.1:8080/api/slides/oauth/callback",
+    "redirectUri": "https://oddrive-gerador.onrender.com/api/slides/oauth/callback",
     "publicShare": true
   },
   "google_auth": {

@@ -55,7 +55,7 @@ function buildGoogleConfig(overrides = {}) {
       normalized.redirectUri ||
       normalized.googleRedirectUri ||
       process.env.GOOGLE_REDIRECT_URI ||
-      'http://127.0.0.1:8080/api/slides/oauth/callback'
+      'https://oddrive-gerador.onrender.com/api/slides/oauth/callback'
   };
 
   return {
