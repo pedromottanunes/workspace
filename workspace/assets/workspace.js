@@ -29,7 +29,7 @@
       description: '',
       backgroundImage: 'assets/images/bg-gerenciador.jpg',
       links: [
-        { label: 'Abrir painel do administrador', href: `${adminBase}/?token=${encodeURIComponent(token)}`, primary: true }
+        { label: 'Abrir gerenciador de campanhas', href: `${adminBase}/?token=${encodeURIComponent(token)}`, primary: true }
       ]
     },
     {
