@@ -160,8 +160,27 @@ async function deleteRepresentativeRequest(requestId) {
 async function createProposal(proposalData) {
   const database = await getDb();
   const now = new Date();
+  
+  // Remover imagens base64 para evitar exceder limite de 16MB do MongoDB
+  const uploadsMetadata = {};
+  if (proposalData.uploads) {
+    for (const [key, file] of Object.entries(proposalData.uploads)) {
+      if (file && typeof file === 'object') {
+        // Salvar apenas metadados, não o conteúdo base64
+        uploadsMetadata[key] = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+          // data: removido intencionalmente para economizar espaço
+        };
+      }
+    }
+  }
+  
   const doc = {
     ...proposalData,
+    uploads: uploadsMetadata, // Substitui uploads com apenas metadados
     id: proposalData?.id || Date.now().toString(),
     createdAt: now,
     updatedAt: now,
@@ -191,13 +210,36 @@ async function getProposalById(proposalId) {
 
 async function updateProposal(proposalId, updates) {
   const database = await getDb();
+  
+  // Remover imagens base64 para evitar exceder limite de 16MB do MongoDB
+  const uploadsMetadata = {};
+  if (updates.uploads) {
+    for (const [key, file] of Object.entries(updates.uploads)) {
+      if (file && typeof file === 'object') {
+        // Salvar apenas metadados, não o conteúdo base64
+        uploadsMetadata[key] = {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          lastModified: file.lastModified,
+          // data: removido intencionalmente para economizar espaço
+        };
+      }
+    }
+  }
+  
+  const sanitizedUpdates = {
+    ...updates,
+    uploads: uploadsMetadata, // Substitui uploads com apenas metadados
+  };
+  
   const result = await database
     .collection(PROPOSALS_COLLECTION)
     .updateOne(
       { id: proposalId },
       { 
         $set: { 
-          ...updates,
+          ...sanitizedUpdates,
           updatedAt: new Date() 
         } 
       }
