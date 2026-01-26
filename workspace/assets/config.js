@@ -19,12 +19,13 @@
     isDevelopment,
     
     // URLs dos serviços (produção)
+    // Em produção no AWS EC2, estas variáveis devem ser configuradas via Nginx ou diretamente
     BACKEND_URL: isProduction 
-      ? (window.ENV_BACKEND_URL || 'https://oddrive-backend.onrender.com')
+      ? (window.ENV_BACKEND_URL || window.location.origin)
       : `${window.location.protocol}//${window.location.hostname}:5174`,
     
     GERADOR_URL: isProduction 
-      ? (window.ENV_GERADOR_URL || 'https://oddrive-gerador.onrender.com')
+      ? (window.ENV_GERADOR_URL || `${window.location.protocol}//${window.location.hostname}:5173`)
       : `http://${window.location.hostname}:5173`,
     
     WORKSPACE_URL: isProduction 

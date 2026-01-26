@@ -17,7 +17,7 @@ import adminAuthRouter from './routes/admin-auth.js';
 import os from 'os';
 
 const app = express();
-const trustProxy = process.env.TRUST_PROXY === '1' || !!process.env.RENDER;
+const trustProxy = process.env.TRUST_PROXY === '1';
 if (trustProxy) {
   app.set('trust proxy', 1);
 }
@@ -42,7 +42,7 @@ app.use((req, res, next) => {
 // Configuração de segurança HTTP com Helmet
 // In development we avoid sending strict transport/security headers that
 // cause browsers to upgrade or reject insecure origins (HSTS, COOP, origin-keying).
-const isProd = (process.env.NODE_ENV === 'production' || !!process.env.RENDER);
+const isProd = (process.env.NODE_ENV === 'production');
 const helmetOptions = {
   contentSecurityPolicy: {
     directives: {
@@ -54,7 +54,7 @@ const helmetOptions = {
       fontSrc: ["'self'", 'https:'],
       objectSrc: ["'none'"],
       mediaSrc: ["'self'"],
-      frameAncestors: ["'self'", 'https://oddrive-workspace.onrender.com', 'http://localhost:*', 'http://127.0.0.1:*'],
+      frameAncestors: ["'self'", process.env.WORKSPACE_URL || 'http://localhost:4173', 'http://localhost:*', 'http://127.0.0.1:*'],
       upgradeInsecureRequests: null, // explicitly disable upgrade to HTTPS in dev
     },
   },
@@ -123,11 +123,12 @@ const devOrigins = new Set([
   'http://127.0.0.1:4173',
   'capacitor://localhost',
   'ionic://localhost',
-  // Render production URLs
-  'https://oddrive-workspace.onrender.com',
-  'https://oddrive-backend.onrender.com',
-  'https://oddrive-gerador.onrender.com',
 ]);
+
+// Production URLs from environment variables
+if (process.env.WORKSPACE_URL) devOrigins.add(process.env.WORKSPACE_URL);
+if (process.env.BACKEND_URL) devOrigins.add(process.env.BACKEND_URL);
+if (process.env.GERADOR_URL) devOrigins.add(process.env.GERADOR_URL);
 
 function isSameOrigin(origin, req) {
   const host = req.get('host');
@@ -225,7 +226,7 @@ if (wantHttps && !httpsOptions) {
 const server = httpsOptions ? https.createServer(httpsOptions, app) : http.createServer(app);
 const scheme = httpsOptions ? 'https' : 'http';
 
-// Bind explicitly to 0.0.0.0 for cloud platforms (Render expects the process to listen externally)
+// Bind explicitly to 0.0.0.0 for cloud platforms (AWS EC2, etc)
 server.listen(PORT, HOST, () => {
   console.log(`========================================`);
   console.log(`🚀 Gerenciador de Campanhas`);

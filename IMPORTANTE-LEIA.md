@@ -2,7 +2,7 @@
 
 ## 🔴 SITUAÇÃO ATUAL
 
-O script `verificar-segredos.ps1` detectou arquivos que **NÃO DEVEM** ser enviados ao GitHub:
+Arquivos `.env` contêm credenciais sensíveis e **NÃO DEVEM** ser enviados ao GitHub:
 
 ### Arquivos .env (contêm credenciais):
 - `Gerador de Orçamentos\.env`
@@ -13,13 +13,13 @@ O script `verificar-segredos.ps1` detectou arquivos que **NÃO DEVEM** ser envia
 
 ## ✅ SOLUÇÃO
 
-### Opção 1: Manter arquivos localmente (RECOMENDADO)
+### Opção 1: Usar Git CLI (RECOMENDADO)
 
-Os arquivos `.env` e certificados estão protegidos pelo `.gitignore` e **NÃO serão enviados** ao GitHub automaticamente se você usar Git CLI:
+Os arquivos `.env` e certificados estão protegidos pelo `.gitignore` e **NÃO serão enviados** ao GitHub automaticamente:
 
 ```bash
 git add .
-git commit -m "Initial commit"
+git commit -m "Preparado para deploy AWS EC2"
 git push
 ```
 
@@ -56,29 +56,45 @@ Move-Item "C:\Temp\env-gerador.env.backup" "Gerador de Orçamentos\.env"
 Move-Item "C:\Temp\env-backend.env.backup" "gerenciador de Campanhas\.env"
 ```
 
-## 📋 CONFIGURAR NO RENDER
+## 📋 CONFIGURAR NO SERVIDOR AWS EC2
 
-Após fazer deploy, você precisará configurar manualmente as variáveis de ambiente no painel do Render usando os valores dos seus arquivos `.env` locais.
+Após clonar o repositório no servidor EC2, você precisará criar os arquivos `.env` manualmente no servidor usando os valores dos seus arquivos `.env` locais.
 
-### Backend (oddrive-backend):
+### Backend (Gerenciador de Campanhas):
 
-Copie os valores de `gerenciador de Campanhas\.env`:
+No servidor EC2:
+```bash
+nano ~/apps/oddrive/gerenciador-de-campanhas/.env
+```
+
+Copie os valores do seu `.env` local:
 - MONGO_URI
 - SESSION_SECRET
 - GOOGLE_CLIENT_EMAIL
 - GOOGLE_PRIVATE_KEY
 - public_key
 - Private_key
+- BACKEND_URL
+- GERADOR_URL
+- WORKSPACE_URL
 
-### Gerador (oddrive-gerador):
+### Gerador (Gerador de Orçamentos):
 
-Copie os valores de `Gerador de Orçamentos\.env`:
+No servidor EC2:
+```bash
+nano ~/apps/oddrive/gerador-de-orcamentos/.env
+```
+
+Copie os valores do seu `.env` local:
 - GOOGLE_CLIENT_ID
 - GOOGLE_CLIENT_SECRET
-- GOOGLE_REDIRECT_URI (ajuste URL para produção)
+- GOOGLE_REDIRECT_URI (ajuste URL para IP/domínio do servidor)
 - GOOGLE_TEMPLATE_* (todos os IDs)
 - GOOGLE_PRESENTATIONS_FOLDER_ID
 - GOOGLE_DRIVE_ASSETS_FOLDER_ID
+- MONGO_URI
+
+**Consulte:** [README-AWS-EC2.md](README-AWS-EC2.md) para instruções detalhadas
 
 ## 🛡️ POR QUE ISSO É IMPORTANTE?
 
@@ -89,12 +105,12 @@ Copie os valores de `Gerador de Orçamentos\.env`:
 
 ## ✅ VERIFICAÇÃO FINAL
 
-Após fazer upload, verifique no GitHub:
+Após fazer upload no GitHub, verifique:
 
 1. Vá ao seu repositório
-2. Navegue até `Gerador de Orçamentos/`
+2. Navegue até `gerador-de-orcamentos/`
 3. **NÃO deve aparecer** arquivo `.env` (apenas `.env.example`)
-4. Navegue até `gerenciador de Campanhas/`
+4. Navegue até `gerenciador-de-campanhas/`
 5. **NÃO deve aparecer** arquivo `.env` (apenas `.env.example`)
 
 Se aparecer `.env`, delete imediatamente:
@@ -105,7 +121,7 @@ Se aparecer `.env`, delete imediatamente:
 1. Escolha uma das opções acima
 2. Faça upload no GitHub
 3. Verifique que `.env` não está no repositório
-4. Configure variáveis no Render usando `README-DEPLOY.md`
+4. Siga o guia [README-AWS-EC2.md](README-AWS-EC2.md) para deploy
 
 ---
 
