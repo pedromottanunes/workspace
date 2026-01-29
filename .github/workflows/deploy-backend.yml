@@ -1,0 +1,64 @@
+name: Deploy backend to EC2
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            set -e
+            APP_ROOT=/home/ec2-user/fulljob/workspace
+            REPO_URL=https://github.com/pedromottanunes/workspace.git
+
+            # Node/PM2 (Amazon Linux: dnf/yum)
+            if ! command -v node >/dev/null 2>&1; then
+              curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+              sudo dnf install -y nodejs || sudo yum install -y nodejs
+            fi
+            if ! command -v pm2 >/dev/null 2>&1; then
+              sudo npm install -g pm2
+            fi
+
+            # Código
+            if [ ! -d "$APP_ROOT/.git" ]; then
+              rm -rf "$APP_ROOT"
+              git clone "$REPO_URL" "$APP_ROOT"
+            else
+              cd "$APP_ROOT"
+              git fetch --all
+              git reset --hard origin/main
+            fi
+
+            # Gerenciador de Campanhas
+            cd "$APP_ROOT/gerenciador-de-campanhas"
+            npm ci --omit=dev || npm install --omit=dev
+            if pm2 describe odddrive_servidor >/dev/null 2>&1; then
+              pm2 restart odddrive_servidor
+            else
+              pm2 start backend/server.js --name odddrive_servidor --time
+            fi
+
+            # Gerador de Orçamentos
+            cd "$APP_ROOT/gerador-de-orcamentos"
+            npm ci --omit=dev || npm install --omit=dev
+            if pm2 describe odddrive_gerador >/dev/null 2>&1; then
+              pm2 restart odddrive_gerador
+            else
+              pm2 start server/index.js --name odddrive_gerador --time
+            fi
+
+            pm2 save || true
