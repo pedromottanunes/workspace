@@ -3,7 +3,7 @@
 ## 🔴 SITUAÇÃO ATUAL
 
 Arquivos `.env` contêm credenciais sensíveis e **NÃO DEVEM** ser enviados ao GitHub:
-
+testando
 ### Arquivos .env (contêm credenciais):
 - `Gerador de Orçamentos\.env`
 - `gerenciador de Campanhas\.env`
